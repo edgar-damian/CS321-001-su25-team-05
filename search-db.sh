@@ -1,4 +1,4 @@
-#!/bin/sh
+#!//usr/bin/env bash
 
 for value in accepted-ip accepted-time invalid-ip invalid-time failed-ip failed-time reverseaddress-ip reverseaddress-time user-ip
 do

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 echo
 echo "Checking your dump files against sample dump files..."
