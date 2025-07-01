@@ -5,9 +5,13 @@
 # - Java 11 (LTS)
 # - Java 17 (LTS; officially supported since Gradle 7.3)
 # - Java 21 (latest LTS; officially supported since Gradle 8.4)
-# - Java 23 (current; to be deprecated in March 2025; officially supported since Gradle 8.10)
-# - Java 24 (to be released in March 2025; to be deprecated in September 2025; not officially supported by Gradle)
+# - Java 23 (deprecated; officially supported since Gradle 8.10)
+# - Java 24 (current; to be deprecated in September 2025; officially supported since Gradle 8.14)
 # - Java 25 (LTS; to be released in September 2025; not officially supported by Gradle)
+# - Java 26 (to be released in March 2026; to be deprecated in September 2026; not officially supported by Gradle)
+# - Java 27 (to be released in September 2026; to be deprecated in March 2027; not officially supported by Gradle)
+# - Java 28 (to be released in March 2027; to be deprecated in September 2027; not officially supported by Gradle)
+
 name: CS321_Cybersecurity CI with Gradle
 
 on:
@@ -23,7 +27,7 @@ jobs:
 
     strategy:
       matrix:
-        java: [ '8', '11', '17', '21', '23' ]
+        java: [ '8', '11', '17', '21', '24' ]
     name: Java version ${{ matrix.Java }}
 
     steps:
