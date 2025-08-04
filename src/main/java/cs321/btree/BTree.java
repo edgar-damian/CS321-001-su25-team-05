@@ -38,7 +38,7 @@ public class BTree {
         Node r=root;
         if (r.n==(2t-1)
         {
-            s=BTreeSplitRoot(T);
+            Node s = BTreeSplitRoot(T);
             BTreeInsertNonFull(s, obj);
         }
         else
@@ -47,41 +47,34 @@ public class BTree {
         }
     }
 
-    public voidBTreeInsertNonFull(Node x, TreeObject obj){
-        int i=x.n-1;
-        if (x.leaf)
-        {
-            while(i>=0 && obj<x.key[i])
-            {
-                x.keys[i+1]=x.keys[i];
+    public void BTreeInsertNonFull(Node x, TreeObject obj) {
+        int i = x.n - 1;
+        if (x.leaf) {
+            while (i >= 0 && obj < x.key[i]) {
+                x.keys[i + 1] = x.keys[i];
                 i++;
             }
-            x.keys[i+1]=obj;
+            x.keys[i + 1] = obj;
             x.n++;
-            DiskWrite(x)
-        }
-        else
-        {
-            while(i>=0 && obj<x.keys[i])
-            {
+            diskWrite(x);
+        } else {
+            while (i >= 0 && obj < x.keys[i]) {
                 i--;
             }
-            DiskRead(x.c[i]);
-            if (x.c[i].n ==2t-1)
-            {
-                BTreeSplitChild(x,i);
-                if(obj>x.key[i])
-                {
+            diskRead(x.c[i]);
+            if (x.c[i].n == 2 t - 1){
+                BTreeSplitChild(x, i);
+                if (obj.getKey() > x.keys[i]) {
                     i++;
                 }
             }
-            BTreeInsertNonFull(x.c[i],obj)
+            BTreeInsertNonFull(x.c[i], obj);
         }
+    }
 
-        public Node BTreeSplitRoot()
-        {
+        public Node BTreeSplitRoot() {
             Node s=new Node();
-            s.leaf=False;
+            s.leaf= false;
             s.n=0;
             s.c[0]=T.root;
             root=s;
@@ -91,13 +84,13 @@ public class BTree {
 
         public void BTreeSplitChild(Node x,int i)
         {
-            Node y=x.c;
+            Node y = x.c;
             Node z= new Node();
-            z.leaf=y.leaf
+            z.leaf=y.leaf;
             z.n=t-1;
-            for(int j=0;j<t;j++);
+            for(int j=0;j<t;j++)
             {
-                z.keys[j]=y.keys[j+t];
+                z.keys[j] = y.keys[j+t];
             }
             if(!y.leaf)
             {
@@ -107,20 +100,18 @@ public class BTree {
                 }
             }
             y.n=t-1;
-            for(int j=x.n;j>i;j--;
-            {
+            for(int j=x.n;j>i;j--) {
                 x.c[j]=x.c[j-1];
             }
             x.c[i]=z;
-            for(int j=x.n;j>=i;j--)
-            {
-                x.keys[j]=x.keys[j-1]
+            for(int j=x.n;j>=i;j--) {
+                x.keys[j]=x.keys[j-1];
             }
             x.keys[i-1]=y.keys[t-1];
             x.n++;
-            DiskWrite(y);
-            DiskWrite(z);
-            DiskWrite(x);
+            diskWrite(y);
+            diskWrite(z);
+            diskWrite(x);
         }
 
         /**
@@ -142,7 +133,7 @@ public class BTree {
                 return null;
             }
             else {
-                DiskRead(x.children[i]);
+                diskRead(x.children[i]);
                 return search(x.children[i], k);
             }
             return null;
