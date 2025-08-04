@@ -5,7 +5,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 
-
 public class BTree {
 
     private int METADATA_SIZE = Long.BYTES;
@@ -30,19 +29,16 @@ public class BTree {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        root = x
+        root = x;
         nodeSize++;
     }
 
     public void insert (TreeObject obj){
         Node r=root;
-        if (r.n==(2t-1)
-        {
-            Node s = BTreeSplitRoot(T);
+        if (r.n == ( (2*t) - 1)) {
+            Node s = BTreeSplitRoot();
             BTreeInsertNonFull(s, obj);
-        }
-        else
-        {
+        } else {
             BTreeInsertNonFull(r, obj);
         }
     }
@@ -50,7 +46,7 @@ public class BTree {
     public void BTreeInsertNonFull(Node x, TreeObject obj) {
         int i = x.n - 1;
         if (x.leaf) {
-            while (i >= 0 && obj < x.key[i]) {
+            while (i >= 0 && obj < x.keys[i]) {
                 x.keys[i + 1] = x.keys[i];
                 i++;
             }
@@ -73,10 +69,10 @@ public class BTree {
     }
 
         public Node BTreeSplitRoot() {
-            Node s=new Node();
-            s.leaf= false;
-            s.n=0;
-            s.c[0]=T.root;
+            Node s = new Node();
+            s.leaf = false;
+            s.n = 0;
+            s.children[0]=root;
             root=s;
             BTreeSplitChild(s,0);
             return s;
@@ -84,7 +80,7 @@ public class BTree {
 
         public void BTreeSplitChild(Node x,int i)
         {
-            Node y = x.c;
+            Node y = x.children;
             Node z= new Node();
             z.leaf=y.leaf;
             z.n=t-1;
@@ -121,7 +117,7 @@ public class BTree {
          * in the array of keys, it will recursively call itself in the corresponding children array and
          * start a new search there, and so on until either the key k is found or null is returned.
          */
-        public void search(Node x, int k){
+        public Node search (Node x, int k){
             int i = 1;
             while (i <= x.n && k > x.keys[i]){
                 i++;
@@ -204,9 +200,7 @@ public class BTree {
             /**
              * Empty Node constructor
              */
-            public Node(){
-
-            }
+            public Node(){}
         }
 
         /**
