@@ -234,8 +234,8 @@ public class BTree {
             file.read(buffer);
             buffer.flip(); //flips the buffer so we can pull from the file
 
-            ArrayList<Integer> keys = new ArrayList<>(); //array of ints INSIDE a node
-            ArrayList<Long> children = new ArrayList<>(); //array of pointers to children
+            TreeObject[] keys = new TreeObject[2*t - 1];
+            Long[] children = new Long[2*t - 1];
 
             //reading n
             int n = buffer.getInt();
@@ -246,18 +246,24 @@ public class BTree {
             if (flag == 1)
                 leaf = true;
 
-            //reading keys
-            for (int i = 0; i < (2 * t -1); i++) {
-                long tempKey = buffer.getLong();
+
+
+
+            /*
+            String temp = buffer.getChar();
                 if (i < n)
                     keys.add((int) tempKey);
+             */
+            //reading keys
+            for (int i = 0; i < (2 * t -1); i++) {
+
             }
 
             //reading children
             for (int i = 0; i < (2 * t); i++) {
                 long tempChild = buffer.getLong();
                 if ((i < n + 1) && (!leaf))
-                    children.add(tempChild);
+                    children[i] = tempChild;
             }
 
             Node x = new Node(n, keys, children, leaf, diskAddress, true);
@@ -297,16 +303,18 @@ public class BTree {
 
             //writing keys
             for (int i = 0; i < (2 * t -1); i++) {
-                long tempKey = x.keys.get(i);
-                if (i < tempN)
-                    buffer.putLong(tempKey);
-                else
-                    buffer.put((byte)0);
+                if (i < tempN && x.keys[i] != null){
+                    String tempString = x.keys[i].getKey();
+                    buffer.put(tempString.getBytes());
+                } else {
+                  //so we are either out of bounds or there is nothing to write
+                  buffer.put((byte)0);
+                }
             }
 
             //writing children
             for (int i = 0; i < (2 * t); i++) {
-                long tempChild = x.children.get(i);
+                long tempChild = x.children[i];
                 if ((i < tempN + 1) && (!tempLeaf))
                     buffer.putLong(tempChild);
                 else
