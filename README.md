@@ -227,7 +227,7 @@ Here is a sample project log from a team from a previous semester:
 - [Specifications](#3-specifications)
 - [Design Issues](#4-design-issues)
 - [Implementation](#5-implementation)
-- [Using a Cache](#6-using-a-cache)
+- [Using a cs321.Cache.Cache](#6-using-a-cache)
 - [Using a Database](#7-using-a-database)
 - [Useful Examples](#8-useful-examples)
 - [Test Scripts](#9-test-scripts)
@@ -828,8 +828,8 @@ folder in CS321-resources repo. This example shows a complete binary search tree
 data structure in a binary file on disk.
 
 
-## 6. Using a Cache
-We will incorporate the generic Cache class from `Project 1` to improve the performance of
+## 6. Using a cs321.Cache.Cache
+We will incorporate the generic cs321.Cache.Cache class from `Project 1` to improve the performance of
 our BTree implementation. The size of the cache should be a command line argument. An entry
 in the cache is a `BTreeNode`. With the cache enabled command line option, the `<cache-size>`
 needs to be specified as between `100` and `10000` (inclusive).  Using the cache greatly speeds
