@@ -28,11 +28,97 @@ public class BTree {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        // T.root = x
+        root = x
+        nodeSize++;
     }
 
-    public void insert (){
+    public void insert (TreeObject obj){
+        Node r=root;
+        if (r.n==(2t-1)
+        {
+            s=BTreeSplitRoot(T);
+            BTreeInsertNonFull(s, obj);
+        }
+        else
+        {
+            BTreeInsertNonFull(r, obj);
+        }
+    }
 
+    public voidBTreeInsertNonFull(Node x, TreeObject obj){
+        int i=x.n-1;
+    if (x.leaf)
+    {
+	    while(i>=0 && obj<x.key[i])
+	    {
+	        x.keys[i+1]=x.keys[i];
+	        i++;
+	    }
+    x.keys[i+1]=obj;
+    x.n++;
+    DiskWrite(x)
+    }
+    else
+    {
+        while(i>=0 && obj<x.keys[i])
+        {
+            i--;
+        }
+        DiskRead(x.c[i]);
+        if (x.c[i].n ==2t-1)
+        {
+            BTreeSplitChild(x,i);
+            if(obj>x.key[i])
+            {
+                i++;
+            }
+        }
+        BTreeInsertNonFull(x.c[i],obj)
+    }
+
+    public Node BTreeSplitRoot()
+    {
+        Node s=new Node();
+        s.leaf=False;
+        s.n=0;
+        s.c[0]=T.root;
+        root=s;
+        BTreeSplitChild(s,0);
+        return s;
+    }
+
+    public void BTreeSplitChild(Node x,int i)
+    {
+        Node y=x.c;
+        Node z= new Node();
+        z.leaf=y.leaf
+        z.n=t-1;
+        for(int j=0;j<t;j++);
+        {
+            z.keys[j]=y.keys[j+t];
+        }
+        if(!y.leaf)
+        {
+            for(int j=0;j<t+1;j++)
+            {
+                z.c[j]=y.c[j+t];
+            }
+        }
+        y.n=t-1;
+        for(int j=x.n;j>i;j--;
+        {
+            x.c[j]=x.c[j-1];
+        }
+        x.c[i]=z;
+        for(int j=x.n;j>=i;j--)
+        {
+            x.keys[j]=x.keys[j-1]
+        }
+        x.keys[i-1]=y.keys[t-1];
+        x.n++;
+        DiskWrite(y);
+        DiskWrite(z);
+        DiskWrite(x);
     }
 
     /**
