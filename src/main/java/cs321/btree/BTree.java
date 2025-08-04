@@ -84,7 +84,7 @@ public class BTree {
             Node z= new Node();
             z.leaf=y.leaf;
             z.n=t-1;
-            for(int j=0;j<t;j++)
+            for(int j=0; j<t; j++)
             {
                 z.keys[j] = y.keys[j+t];
             }
@@ -100,7 +100,7 @@ public class BTree {
                 x.c[j]=x.c[j-1];
             }
             x.c[i]=z;
-            for(int j=x.n;j>=i;j--) {
+            for(int j=x.n; j>=i; j--) {
                 x.keys[j]=x.keys[j-1];
             }
             x.keys[i-1]=y.keys[t-1];
