@@ -153,8 +153,14 @@ public class BTree {
         private class Node {
 
             private int n; //represents the number of keys inside the node
-            private ArrayList<Integer> keys; //array of ints inside a node
-            private ArrayList<Long> children; //array of pointers to children
+
+
+
+            //private String[] keys; //array of strings inside a node
+            private TreeObject[] keys = new TreeObject[2*t - 1];
+
+
+            private Long[] children = new Long[ 2*t ]; //array of pointers to children
             private boolean leaf;
             private long address;
 
@@ -165,13 +171,13 @@ public class BTree {
              * Basic constructor for a Node. This grabs all the variables we will use
              *
              * @param myN
-             * @param myKeys an array of keys
-             * @param myChildren an array of children
+             * @param myKeys an array of TreeObjects
+             * @param myChildren an array of children (Longs)
              * @param isLeaf
              * @param address current address, gets updates if onDisk is true
              * @param onDisk
              */
-            public Node(int myN, ArrayList<Integer> myKeys, ArrayList<Long> myChildren, boolean isLeaf, long address, boolean onDisk) {
+            public Node(int myN, TreeObject[] myKeys, Long[] myChildren, boolean isLeaf, long address, boolean onDisk) {
 
                 this.n = myN;
                 this.leaf = isLeaf;
@@ -179,16 +185,16 @@ public class BTree {
 
                 //copying keys
                 for (int i = 0; i < (2 * t -1); i++) {
-                    int tempKey = myKeys.get(i);
+                    TreeObject tempKey = myKeys[i]; //grabs each key one by one
                     if (i < n)
-                        keys.add(tempKey);
+                        keys[i] = tempKey;
                 }
 
                 //copying children
                 for (int i = 0; i < (2 * t); i++) {
-                    long tempChild = myChildren.get(i);
+                    long tempChild = myChildren[i];
                     if ((i < n + 1) && (!leaf))
-                        children.add(tempChild);
+                        children[i] = tempChild;
                 }
 
                 if (onDisk) {
@@ -201,7 +207,7 @@ public class BTree {
              * Empty Node constructor
              */
             public Node(){}
-        }
+    }
 
         /**
          * @author Edgar
