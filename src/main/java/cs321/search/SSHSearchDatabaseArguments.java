@@ -11,7 +11,6 @@ public class SSHSearchDatabaseArguments {
 
     /**
      * Constructor
-     * @param args command line args
      */
     public SSHSearchDatabaseArguments(String[] args) {
         for (String arg : args) {
@@ -27,8 +26,6 @@ public class SSHSearchDatabaseArguments {
                     throw new IllegalArgumentException(
                             "Invalid number for --top-frequency: " + val, e);
                 }
-            } else {
-                // ignore or handle other flags
             }
         }
     }
