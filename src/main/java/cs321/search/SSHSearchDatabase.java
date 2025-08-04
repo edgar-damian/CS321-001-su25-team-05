@@ -1,8 +1,9 @@
 package cs321.search;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.Statement;
-
+import cs321.search.SSHSearchDatabaseArguments;
 /**
  * Driver class for BTree
  *
@@ -24,10 +25,12 @@ public final class SSHSearchDatabase {
             return;
         }
 
-        /** CREATE DB CONNECTION **/
+        /** creating db connection **/
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + databasePath)) {
             if (type.equals("test")) {
-                // CREATE THE DUMMY DATA
+                // CREATE THE mock data
+                createTestDatabase(conn);
+                System.out.println("Database created: " + databasePath);
             } else {
                 // use the real data
 
@@ -68,25 +71,85 @@ public final class SSHSearchDatabase {
         };
 
         try (Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate("DROP TABLE IF EXISTS acceptedtime");
-            stmt.executeUpdate("DROP TABLE IF EXISTS invalidTime");
+            /** dropping tables if they are already existing **/
+            stmt.executeUpdate("DROP TABLE IF EXISTS acceptedIP");
+            stmt.executeUpdate("DROP TABLE IF EXISTS acceptedTimeStamp");
             stmt.executeUpdate("DROP TABLE IF EXISTS failedIP");
-            stmt.executeUpdate("DROP TABLE IF EXISTS reverseAddressIp");
-            stmt.executeUpdate("DROP TABLE IF EXISTS reverseAddressTime");
+            stmt.executeUpdate("DROP TABLE IF EXISTS failedTimeStamp");
+            stmt.executeUpdate("DROP TABLE IF EXISTS invalidIP");
+            stmt.executeUpdate("DROP TABLE IF EXISTS invalidTimeStamp");
+            stmt.executeUpdate("DROP TABLE IF EXISTS reverseAddressIP");
+            stmt.executeUpdate("DROP TABLE IF EXISTS reverseAddressTimeStamp");
             stmt.executeUpdate("DROP TABLE IF EXISTS userIp");
-
-            stmt.executeUpdate("CREATE TABLE acceptedtime (key TEXT, frequency INTEGER)");
-            stmt.executeUpdate("CREATE TABLE invalidTime (key TEXT, frequency INTEGER)");
+            /** creating tables **/
+            stmt.executeUpdate("CREATE TABLE acceptedIP (key TEXT, frequency INTEGER)");
+            stmt.executeUpdate("CREATE TABLE acceptedTimeStamp (key TEXT, frequency INTEGER)");
             stmt.executeUpdate("CREATE TABLE failedIP (key TEXT, frequency INTEGER)");
-            stmt.executeUpdate("CREATE TABLE reverseAddressIp (key TEXT, frequency INTEGER)");
-            stmt.executeUpdate("CREATE TABLE reverseAddressTime (key TEXT, frequency INTEGER)");
+            stmt.executeUpdate("CREATE TABLE failedTimeStamp (key TEXT, frequency INTEGER)");
+            stmt.executeUpdate("CREATE TABLE invalidIP (key TEXT, frequency INTEGER)");
+            stmt.executeUpdate("CREATE TABLE invalidTimeStamp (key TEXT, frequency INTEGER)");
+            stmt.executeUpdate("CREATE TABLE reverseAddressIP (key TEXT, frequency INTEGER)");
+            stmt.executeUpdate("CREATE TABLE reverseAddressTimeStamp (key TEXT, frequency INTEGER)");
             stmt.executeUpdate("CREATE TABLE userIp (key TEXT, frequency INTEGER)");
 
         }
+        /** creating statements **/
+        try (PreparedStatement insertAcceptedIP = conn.prepareStatement("INSERT INTO acceptedIP VALUES (?, ?)");
+             PreparedStatement insertAcceptedTimeStamp = conn.prepareStatement("INSERT INTO acceptedTimeStamp VALUES (?, ?)");
+             PreparedStatement insertFailedIP = conn.prepareStatement("INSERT INTO failedIP VALUES (?, ?)");
+             PreparedStatement insertFailedTimeStamp = conn.prepareStatement("INSERT INTO failedTimeStamp VALUES (?, ?)");
+             PreparedStatement insertInvalidIP= conn.prepareStatement("INSERT INTO invalidIP VALUES (?, ?)");
+             PreparedStatement insertInvalidTimeStamp= conn.prepareStatement("INSERT INTO invalidTimeStamp VALUES (?, ?)");
+             PreparedStatement insertReverseAddressIp = conn.prepareStatement("INSERT INTO reverseAddressIP VALUES (?, ?)");
+             PreparedStatement insertReverseAddressTimeStamp = conn.prepareStatement("INSERT INTO reverseAddressTimeStamp VALUES (?, ?)");
+             PreparedStatement insertUserIP = conn.prepareStatement("INSERT INTO userIp VALUES (?, ?)");
+        ){
+            for (String data : testData) {
+                String[] subStrings = data.split(" ");
+                String firstString = subStrings[0];
+                int freq = Integer.parseInt(subStrings[1]);
+
+                if (firstString.startsWith("Accepted-")) {
+                    insertAcceptedIP.setString(1, firstString);
+                    insertAcceptedIP.setInt(2, freq);
+                    insertAcceptedIP.executeUpdate();
+                    insertAcceptedTimeStamp.setString(1, firstString);
+                    insertAcceptedTimeStamp.setInt(2, freq);
+                    insertAcceptedTimeStamp.executeUpdate();
+                } else if (firstString.startsWith("Failed-")) {
+                    insertFailedIP.setString(1, firstString);
+                    insertFailedIP.setInt(2, freq);
+                    insertFailedIP.executeUpdate();
+                    insertFailedTimeStamp.setString(1, firstString);
+                    insertFailedTimeStamp.setInt(2, freq);
+                    insertFailedTimeStamp.executeUpdate();
+
+                } else if (firstString.startsWith("Invalid-")) {
+                    insertInvalidIP.setString(1, firstString);
+                    insertInvalidIP.setInt(2, freq);
+                    insertInvalidIP.executeUpdate();
+                    insertInvalidTimeStamp.setString(1, firstString);
+                    insertInvalidTimeStamp.setInt(2, freq);
+                    insertInvalidTimeStamp.executeUpdate();
+                } else if (firstString.startsWith("Reverse-")) {
+                    insertReverseAddressIp.setString(1, firstString);
+                    insertReverseAddressIp.setInt(2, freq);
+                    insertReverseAddressIp.executeUpdate();
+                    insertReverseAddressTimeStamp.setString(1, firstString);
+                    insertReverseAddressTimeStamp.setInt(2, freq);
+                    insertReverseAddressTimeStamp.executeUpdate();
+                } else {
+                    insertUserIP.setString(1, firstString);
+                    insertUserIP.setInt(2, freq);
+                    insertUserIP.executeUpdate();
+                }
+            }
         }
 
 
 
+
+        }
 
 
 
