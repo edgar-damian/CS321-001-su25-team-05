@@ -122,6 +122,31 @@ public class BTree {
     }
 
     /**
+     * @author Edgar
+     * 
+     * This method will search through a BTree, it starts at Node x, if they key we look for is not
+     * in the array of keys, it will recursively call itself in the corresponding children array and 
+     * start a new search there, and so on until either the key k is found or null is returned.
+     */
+    public void search(Node x, int k){
+        int i = 1;
+        while (i <= x.n && k > x.keys[i]){
+            i++;
+        }
+        if (i <= x.n && k == x.keys[i]){
+            return (x, i);
+        }
+        else if (x.leaf){
+            return null;
+        }
+        else {
+            DiskRead(x.children[i]);
+            return search(x.children[i], k);
+        }
+        return null;
+    }
+
+    /**
      * This method calculates the number of bytes needed per each node
      * The calculation is as follows:
      *
