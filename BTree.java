@@ -1,10 +1,8 @@
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.Random;
+import java.util.ArrayList;
+
 
 public class BTree {
 
@@ -18,6 +16,24 @@ public class BTree {
     private long rootAddress = METADATA_SIZE;
     private Node root;
 
+    /**
+     * Constructor
+     */
+    public BTree() {
+        Node x = new Node();
+        x.leaf = true;
+        x.n = 0;
+        try {
+            diskWrite(x);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        // T.root = x
+    }
+
+    public void insert (){
+
+    }
 
     /**
      * This method calculates the number of bytes needed per each node
@@ -35,6 +51,7 @@ public class BTree {
     }
 
     private class Node {
+
         private int n; //represents the number of keys inside the node
         private ArrayList<Integer> keys; //array of ints inside a node
         private ArrayList<Long> children; //array of pointers to children
@@ -78,6 +95,13 @@ public class BTree {
                 address = nextDiskAddress;
                 nextDiskAddress += nodeSize;
             }
+        }
+
+        /**
+         * Empty Node constructor
+         */
+        public Node(){
+
         }
     }
 
