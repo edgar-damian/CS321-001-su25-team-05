@@ -15,13 +15,13 @@ public class BTree {
     private ByteBuffer buffer;
     private int nodeSize;
     private static int t; //should be initialized by constructor?
-
+    private int numNodes = 0; //number of nodes in the tree
     private long rootAddress = METADATA_SIZE;
     private Node root;
 
-    /**
-     * Constructor
-     */
+            /**
+             * Constructor
+             */
     BTree(String fileName) {
         Node x = new Node();
         x.leaf = true;
@@ -33,7 +33,7 @@ public class BTree {
             e.printStackTrace();
         }
         root = x;
-        nodeSize++;
+        numNodes++;
     }
 
     BTree(int degree,String fileName)
@@ -48,7 +48,7 @@ public class BTree {
             e.printStackTrace();
         }
         root = x;
-        nodeSize++;
+        numNodes++;
     }
 
 
@@ -71,7 +71,12 @@ public class BTree {
             }
             x.keys[i + 1] = obj;
             x.n++;
-            diskWrite(x);
+            try{
+                diskWrite(x);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
         }
         else {
             while (i >= 0 && obj.compareTo(x.keys[i])<0) {
@@ -96,6 +101,7 @@ public class BTree {
             s.children[0]=root;
             root=s;
             BTreeSplitChild(s,0);
+            numNodes++;
             return s;
         }
 
@@ -126,9 +132,15 @@ public class BTree {
             }
             x.keys[i]=y.keys[t-1];
             x.n++;
-            diskWrite(y);
-            diskWrite(z);
-            diskWrite(x);
+
+            try {
+                diskWrite(y);
+                diskWrite(z);
+                diskWrite(x);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            numNodes++;
         }
 
         long getSize()
@@ -143,17 +155,12 @@ public class BTree {
 
         long getNumberOfNodes()
         {
-            if(root.leaf){
-                return 1;
-            }
-            else{
-                return root.children.length;
-            }
+            return numNodes;
         }
 
         int getHeight()
         {
-
+            return 0;
         }
 
         /**
@@ -163,22 +170,59 @@ public class BTree {
          * in the array of keys, it will recursively call itself in the corresponding children array and
          * start a new search there, and so on until either the key k is found or null is returned.
          */
-        public Node search (Node x, int k){
-            int i = 1;
-            while (i <= x.n && k > x.keys[i]){
+        public TreeObject search (String k){
+
+            Node x = root;
+
+            int i = 0;
+            while (i <= x.n && k.compareTo(x.keys[i].getKey()) > 0){
                 i++;
             }
-            if (i <= x.n && k == x.keys[i]){
-                return (x, i);
+            if (i <= x.n && k == x.keys[i].getKey()){
+                return x.keys[i];
             }
             else if (x.leaf){
+                //not in Tree
                 return null;
             }
             else {
-                diskRead(x.children[i]);
-                return search(x.children[i], k);
+                Node newChild = new Node();
+                try{
+                    newChild = diskRead(x.children[i]);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                return searchRecur(newChild, k);
             }
-            return null;
+            //return null;
+        }
+
+        public TreeObject searchRecur (Node currentChild, String k){
+
+            Node x = currentChild;
+            int i = 0;
+            while (i <= x.n && k.compareTo(x.keys[i].getKey()) > 0){
+                i++;
+            }
+            if (i <= x.n && k == x.keys[i].getKey()){
+                return x.keys[i];
+            }
+            else if (x.leaf){
+                //not in Tree
+                return null;
+            }
+            else {
+                Node newChild = new Node();
+                try{
+                    newChild = diskRead(x.children[i]);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                return searchRecur(newChild, k);
+            }
+            //return null;
         }
 
         /**
