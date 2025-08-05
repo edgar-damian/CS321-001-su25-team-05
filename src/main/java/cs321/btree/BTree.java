@@ -83,23 +83,49 @@ public class BTree {
                 i--;
             }
             i++;
-            diskRead(x.children[i]);
-            if (x.children[i].n == (2*t - 1)){
+            try{
+                diskRead(x.children[i]);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            Node childNode = new Node();
+            try {
+                childNode = diskRead(x.children[i]);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            if (childNode.n == (2*t - 1)){
                 BTreeSplitChild(x, i);
+//                if (obj.compareTo(x.keys[i]) > 0) {
+//                    i++;
+//                }
                 if (obj.compareTo(x.keys[i]) > 0) {
                     i++;
                 }
+
+                childNode = null;
+                try {
+                    childNode = diskRead(x.children[i]);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
             }
-            BTreeInsertNonFull(x.children[i], obj);
+
+            BTreeInsertNonFull(childNode, obj);
+
         }
     }
 
         public Node BTreeSplitRoot() {
-            Node s = new Node();
+            Node s = new Node(); //going to be the root/parent
             s.leaf = false;
             s.n = 0;
-            s.children[0]=root;
-            root=s;
+
+            s.children[0] = root.address;
+            root = s;
             BTreeSplitChild(s,0);
             numNodes++;
             return s;
@@ -107,7 +133,14 @@ public class BTree {
 
         public void BTreeSplitChild(Node x,int i)
         {
-            Node y = x.children;
+            //Node y = x.children;
+            Node y = new Node();
+            try{
+                y = diskRead(x.children[i]);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
             Node z= new Node();
             z.leaf=y.leaf;
             z.n=t-1;
@@ -122,12 +155,16 @@ public class BTree {
                     z.children[j]=y.children[j+t];
                 }
             }
-            y.n=t-1;
-            for(int j=x.n;j>i+1;j--) {
+            y.n = t-1;
+
+            //go back here if error
+            for(int j=x.n; j == i + 1; j--) {
                 x.children[j+1]=x.children[j];
             }
-            x.children[j+i]=z;
-            for(int j=x.n-1; j>=i; j--) {
+            //
+
+            x.children[1 + i] = z.address;
+            for(int j = x.n - 1; j >= i; j--) {
                 x.keys[j+1]=x.keys[j];
             }
             x.keys[i]=y.keys[t-1];
