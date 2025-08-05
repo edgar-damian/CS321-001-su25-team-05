@@ -1,3 +1,5 @@
+package cs321.btree;
+
 import cs321.btree.TreeObject;
 
 import java.io.IOException;
@@ -20,10 +22,11 @@ public class BTree {
     /**
      * Constructor
      */
-    public BTree() {
+    BTree(String fileName) {
         Node x = new Node();
         x.leaf = true;
         x.n = 0;
+        t=3;
         try {
             diskWrite(x);
         } catch (IOException e) {
@@ -32,6 +35,22 @@ public class BTree {
         root = x;
         nodeSize++;
     }
+
+    BTree(int degree,String fileName)
+    {
+        Node x = new Node();
+        x.leaf = true;
+        x.n = 0;
+        t=degree;
+        try {
+            diskWrite(x);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        root = x;
+        nodeSize++;
+    }
+
 
     public void insert (TreeObject obj){
         Node r=root;
@@ -46,25 +65,27 @@ public class BTree {
     public void BTreeInsertNonFull(Node x, TreeObject obj) {
         int i = x.n - 1;
         if (x.leaf) {
-            while (i >= 0 && obj < x.keys[i]) {
+            while (i >= 0 && obj.compareTo(x.keys[i]) < 0) {
                 x.keys[i + 1] = x.keys[i];
                 i++;
             }
             x.keys[i + 1] = obj;
             x.n++;
             diskWrite(x);
-        } else {
-            while (i >= 0 && obj < x.keys[i]) {
+        }
+        else {
+            while (i >= 0 && obj.compareTo(x.keys[i])<0) {
                 i--;
             }
-            diskRead(x.c[i]);
-            if (x.c[i].n == 2 t - 1){
+            i++;
+            diskRead(x.children[i]);
+            if (x.children[i].n == (2*t - 1)){
                 BTreeSplitChild(x, i);
-                if (obj.getKey() > x.keys[i]) {
+                if (obj.compareTo(x.keys[i]) > 0) {
                     i++;
                 }
             }
-            BTreeInsertNonFull(x.c[i], obj);
+            BTreeInsertNonFull(x.children[i], obj);
         }
     }
 
@@ -84,30 +105,55 @@ public class BTree {
             Node z= new Node();
             z.leaf=y.leaf;
             z.n=t-1;
-            for(int j=0; j<t; j++)
+            for(int j=0; j<t-2; j++)
             {
                 z.keys[j] = y.keys[j+t];
             }
             if(!y.leaf)
             {
-                for(int j=0;j<t+1;j++)
+                for(int j=0;j<t-1;j++)
                 {
-                    z.c[j]=y.c[j+t];
+                    z.children[j]=y.children[j+t];
                 }
             }
             y.n=t-1;
-            for(int j=x.n;j>i;j--) {
-                x.c[j]=x.c[j-1];
+            for(int j=x.n;j>i+1;j--) {
+                x.children[j+1]=x.children[j];
             }
-            x.c[i]=z;
-            for(int j=x.n; j>=i; j--) {
-                x.keys[j]=x.keys[j-1];
+            x.children[j+i]=z;
+            for(int j=x.n-1; j>=i; j--) {
+                x.keys[j+1]=x.keys[j];
             }
-            x.keys[i-1]=y.keys[t-1];
+            x.keys[i]=y.keys[t-1];
             x.n++;
             diskWrite(y);
             diskWrite(z);
             diskWrite(x);
+        }
+
+        long getSize()
+        {
+            return nodeSize;
+        }
+
+        int getDegree()
+        {
+            return t;
+        }
+
+        long getNumberOfNodes()
+        {
+            if(root.leaf){
+                return 1;
+            }
+            else{
+                return root.children.length;
+            }
+        }
+
+        int getHeight()
+        {
+
         }
 
         /**
@@ -153,8 +199,6 @@ public class BTree {
         private class Node {
 
             private int n; //represents the number of keys inside the node
-
-
 
             //private String[] keys; //array of strings inside a node
             private TreeObject[] keys = new TreeObject[2*t - 1];
