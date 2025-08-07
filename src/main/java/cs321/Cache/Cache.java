@@ -3,6 +3,10 @@ package cs321.Cache;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+public class Cache{
+
+}
+/*
 public class Cache<T extends Comparable<T>> implements Iterable<T>{
     private LinkedList<T> cache;
     private int cacheSize;
@@ -94,3 +98,4 @@ public class Cache<T extends Comparable<T>> implements Iterable<T>{
                 + String.format("%.2f", hitNumber) + "%\n";
     }
 }
+ */

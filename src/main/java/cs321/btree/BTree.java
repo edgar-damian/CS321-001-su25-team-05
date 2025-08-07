@@ -2,10 +2,16 @@ package cs321.btree;
 
 import cs321.btree.TreeObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+
+
+import java.io.FileNotFoundException;
+import java.io.RandomAccessFile;
+import java.util.Random;
 
 public class BTree {
 
@@ -14,7 +20,8 @@ public class BTree {
     private FileChannel file;
     private ByteBuffer buffer;
     private int nodeSize;
-    private static int t; //should be initialized by constructor?
+
+    private int t; //should be initialized by constructor?
     private int numNodes = 0; //number of nodes in the tree
     private long rootAddress = METADATA_SIZE;
     private Node root;
@@ -22,34 +29,44 @@ public class BTree {
             /**
              * Constructor
              */
-    BTree(String fileName) {
+    BTree(String fileNameString) {
+
+        nodeSize = Node.BYTES;
+        buffer = ByteBuffer.allocateDirect(nodeSize);
+
+        File fileName = new File(fileNameString);
+
+
+
+
+        t=3;
         Node x = new Node();
         x.leaf = true;
         x.n = 0;
-        t=3;
-        try {
-            diskWrite(x);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            diskWrite(x);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
         root = x;
         numNodes++;
     }
 
-    BTree(int degree,String fileName)
-    {
+
+    BTree(int degree,String fileName) {
+        t = degree;
         Node x = new Node();
         x.leaf = true;
         x.n = 0;
-        t=degree;
-        try {
-            diskWrite(x);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            diskWrite(x);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
         root = x;
         numNodes++;
     }
+
 
 
     public void insert (TreeObject obj){
@@ -273,7 +290,7 @@ public class BTree {
          *
          * @return number of bytes needed per node
          */
-        private static int calculateBytes(){
+        private int calculateBytes(){
             return Integer.BYTES + 1 +((2*t-1) * Long.BYTES) + ((2*t) * Long.BYTES);
         }
 
@@ -282,15 +299,13 @@ public class BTree {
             private int n; //represents the number of keys inside the node
 
             //private String[] keys; //array of strings inside a node
-            private TreeObject[] keys = new TreeObject[2*t - 1];
-
-
-            private Long[] children = new Long[ 2*t ]; //array of pointers to children
+            private TreeObject[] keys;// = new TreeObject[2*t - 1];
+            private Long[] children;// = new Long[ 2*t ]; //array of pointers to children
             private boolean leaf;
             private long address;
 
             //public static final int BYTES = Integer.BYTES + 1 +((2*t-1) * Long.BYTES) + ((2*t) * Long.BYTES);
-            public static final int BYTES = calculateBytes();
+            public final int BYTES = calculateBytes();
 
             /**
              * Basic constructor for a Node. This grabs all the variables we will use
@@ -303,6 +318,9 @@ public class BTree {
              * @param onDisk
              */
             public Node(int myN, TreeObject[] myKeys, Long[] myChildren, boolean isLeaf, long address, boolean onDisk) {
+
+                this.keys = new TreeObject[2 * BTree.this.t - 1];
+                this.children = new Long[2 * BTree.this.t];
 
                 this.n = myN;
                 this.leaf = isLeaf;
@@ -331,7 +349,11 @@ public class BTree {
             /**
              * Empty Node constructor
              */
-            public Node(){}
+            public Node(){
+                this.keys = new TreeObject[2 * BTree.this.t - 1];
+                this.children = new Long[2 * BTree.this.t];
+
+            }
     }
 
         /**

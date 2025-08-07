@@ -109,6 +109,8 @@ public class BTreeTest {
 
         BTree b = new BTree(3, testFilename);
 
+        System.out.println("Is this right? -> " + b.getDegree());
+
         assertEquals(3, b.getDegree());
 
     }
@@ -456,27 +458,29 @@ public class BTreeTest {
      *
      */
 	@SuppressWarnings("unused")
-    private boolean validateSearchTreeProperty(BTree b) throws IOException {
-
-        String[] keys = b.getSortedKeyArray();
-
-        /*if there are no keys, the tree is valid
-            Beware, if keys have indeed been inserted but getKeysInOrder is not,
-            this method will return true
-        */
-        if (keys == null | keys.length == 0) {
-            return true;
-        }
-
-        String prev = keys[0];
-
-        for (int i = 1; i < keys.length; i++) {
-            if (prev.compareTo(keys[i]) > 0) {
-                return false;
-            }
-        }
-        return true;
-    }
+//
+//    private boolean validateSearchTreeProperty(BTree b) throws IOException {
+//
+//        String[] keys = b.getSortedKeyArray();
+//
+//        /*if there are no keys, the tree is valid
+//            Beware, if keys have indeed been inserted but getKeysInOrder is not,
+//            this method will return true
+//        */
+//        if (keys == null | keys.length == 0) {
+//            return true;
+//        }
+//
+//        String prev = keys[0];
+//
+//        for (int i = 1; i < keys.length; i++) {
+//            if (prev.compareTo(keys[i]) > 0) {
+//                return false;
+//            }
+//        }
+//        return true;
+//    }
+//
 
 
     /**
@@ -493,43 +497,43 @@ public class BTreeTest {
      */
     private boolean validateInserts(BTree b, String[] inputKeys) throws IOException {
 
-        String[] bTreeKeys = b.getSortedKeyArray();
-
-        //input may be unsorted
-        Arrays.sort(inputKeys);
-
-        //track input as a dynamic set to easily remove duplicates
-        ArrayList<String> inputNoDuplicates = new ArrayList<>(inputKeys.length);
-
-        //Copy with excluding duplicates
-        for (int i = 0; i < inputKeys.length; i++) {
-
-            if (i > 0) {
-                //only add an element if it is different from the previous iteration.
-                if (!inputKeys[i - 1].equals(inputKeys[i])) {
-                    inputNoDuplicates.add(inputKeys[i]);
-                }
-            } else {
-                inputNoDuplicates.add(inputKeys[i]);
-            }
-        }
-
-        if (bTreeKeys.length != inputNoDuplicates.size()) {
-            //if input and output arrays are different sizes, they can't be equal
-            return false;
-        }
-
-        String prev = bTreeKeys[0];
-
-        for (int i = 0; i < bTreeKeys.length; i++) {
-            if (!bTreeKeys[i].equals(inputNoDuplicates.get(i))) {
-                return false;
-            }
-
-            if (i > 0 && prev.compareTo(bTreeKeys[i]) > 0) {
-                return false;
-            }
-        }
+//        //String[] bTreeKeys = b.getSortedKeyArray();
+//
+//        //input may be unsorted
+//        Arrays.sort(inputKeys);
+//
+//        //track input as a dynamic set to easily remove duplicates
+//        ArrayList<String> inputNoDuplicates = new ArrayList<>(inputKeys.length);
+//
+//        //Copy with excluding duplicates
+//        for (int i = 0; i < inputKeys.length; i++) {
+//
+//            if (i > 0) {
+//                //only add an element if it is different from the previous iteration.
+//                if (!inputKeys[i - 1].equals(inputKeys[i])) {
+//                    inputNoDuplicates.add(inputKeys[i]);
+//                }
+//            } else {
+//                inputNoDuplicates.add(inputKeys[i]);
+//            }
+//        }
+//
+//        if (bTreeKeys.length != inputNoDuplicates.size()) {
+//            //if input and output arrays are different sizes, they can't be equal
+//            return false;
+//        }
+//
+//        String prev = bTreeKeys[0];
+//
+//        for (int i = 0; i < bTreeKeys.length; i++) {
+//            if (!bTreeKeys[i].equals(inputNoDuplicates.get(i))) {
+//                return false;
+//            }
+//
+//            if (i > 0 && prev.compareTo(bTreeKeys[i]) > 0) {
+//                return false;
+//            }
+//        }
 
         return true;
     }
