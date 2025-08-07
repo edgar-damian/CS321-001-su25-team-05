@@ -19,10 +19,11 @@ public class BTree {
     private long nextDiskAddress = METADATA_SIZE;
     private FileChannel file;
     private ByteBuffer buffer;
-    private int nodeSize;
+    private int nodeSize; //
 
     private int t; //should be initialized by constructor?
     private int numNodes = 0; //number of nodes in the tree
+    private int numObjects = 0; //number of objects inside each node
     private long rootAddress = METADATA_SIZE;
     private Node root;
 
@@ -30,15 +31,6 @@ public class BTree {
              * Constructor
              */
     BTree(String fileNameString) {
-
-        nodeSize = Node.BYTES;
-        buffer = ByteBuffer.allocateDirect(nodeSize);
-
-        File fileName = new File(fileNameString);
-
-
-
-
         t=3;
         Node x = new Node();
         x.leaf = true;
@@ -50,10 +42,34 @@ public class BTree {
 //        }
         root = x;
         numNodes++;
+
+        //nodeSize = x.BYTES; // this line causes an error
+        buffer = ByteBuffer.allocateDirect(calculateBytes());
+
+        File fileName = new File(fileNameString);
+
+
+        try {
+            if (!fileName.exists()) {
+                fileName.createNewFile(); // IOException
+                RandomAccessFile dataFile = new RandomAccessFile(fileName, "rw");
+                file = dataFile.getChannel();
+                writeMetaData(); // IOException
+            } else {
+                RandomAccessFile dataFile = new RandomAccessFile(fileName, "rw");
+                file = dataFile.getChannel();
+                readMetaData(); // IOException
+                root = diskRead(rootAddress); // IOException
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
     }
 
 
-    BTree(int degree,String fileName) {
+    BTree(int degree,String fileNameString) {
         t = degree;
         Node x = new Node();
         x.leaf = true;
@@ -65,6 +81,30 @@ public class BTree {
 //        }
         root = x;
         numNodes++;
+
+
+//nodeSize = x.BYTES; // this line causes an error
+        buffer = ByteBuffer.allocateDirect(calculateBytes());
+
+        File fileName = new File(fileNameString);
+
+        try {
+            if (!fileName.exists()) {
+                fileName.createNewFile(); // IOException
+                RandomAccessFile dataFile = new RandomAccessFile(fileName, "rw");
+                file = dataFile.getChannel();
+                writeMetaData(); // IOException
+            } else {
+                RandomAccessFile dataFile = new RandomAccessFile(fileName, "rw");
+                file = dataFile.getChannel();
+                readMetaData(); // IOException
+                root = diskRead(rootAddress); // IOException
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
     }
 
 
@@ -134,6 +174,7 @@ public class BTree {
             BTreeInsertNonFull(childNode, obj);
 
         }
+        numObjects++;
     }
 
         public Node BTreeSplitRoot() {
@@ -199,7 +240,7 @@ public class BTree {
 
         long getSize()
         {
-            return nodeSize;
+            return numObjects;
         }
 
         int getDegree()
@@ -289,7 +330,7 @@ public class BTree {
          * children: ((2 * t) * Long.BYTES)
          *
          * @return number of bytes needed per node
-         */
+         * */
         private int calculateBytes(){
             return Integer.BYTES + 1 +((2*t-1) * Long.BYTES) + ((2*t) * Long.BYTES);
         }
@@ -305,7 +346,8 @@ public class BTree {
             private long address;
 
             //public static final int BYTES = Integer.BYTES + 1 +((2*t-1) * Long.BYTES) + ((2*t) * Long.BYTES);
-            public final int BYTES = calculateBytes();
+            //public final int BYTES = calculateBytes();
+            public final int BYTES = Integer.BYTES + 1 +((2*t-1) * Long.BYTES) + ((2*t) * Long.BYTES);
 
             /**
              * Basic constructor for a Node. This grabs all the variables we will use
@@ -347,14 +389,57 @@ public class BTree {
             }
 
             /**
-             * Empty Node constructor
+             * Empty Node constructor, should ONLY be called when making a NEW node that
+             * has not been in the disk.
              */
             public Node(){
                 this.keys = new TreeObject[2 * BTree.this.t - 1];
                 this.children = new Long[2 * BTree.this.t];
-
+                //
+                address = nextDiskAddress;
+                nextDiskAddress += nodeSize;
+                //
             }
+            /**
+             *
+             */
+
     }
+
+        /**
+         * Read the metadata from the data file.
+         * @throws IOException
+         */
+        public void readMetaData() throws IOException {
+            file.position(0);
+
+            ByteBuffer tmpbuffer = ByteBuffer.allocateDirect(METADATA_SIZE);
+
+            tmpbuffer.clear();
+            file.read(tmpbuffer);
+
+            tmpbuffer.flip();
+            rootAddress = tmpbuffer.getLong();
+        }
+
+
+        /**
+         * Write the metadata to the data file.
+         * @throws IOException
+         */
+        public void writeMetaData() throws IOException {
+            file.position(0);
+
+            ByteBuffer tmpbuffer = ByteBuffer.allocateDirect(METADATA_SIZE);
+
+            tmpbuffer.clear();
+            tmpbuffer.putLong(rootAddress);
+
+            tmpbuffer.flip();
+            file.write(tmpbuffer);
+        }
+
+
 
         /**
          * @author Edgar
@@ -434,13 +519,13 @@ public class BTree {
          * @throws IOException
          */
         public void diskWrite(Node x) throws IOException {
-            file.position(x.address);
+            file.position(x.address); //file interception null
             buffer.clear();
             int tempN = x.n;
             boolean tempLeaf = x.leaf;
 
             //writing n
-            buffer.putInt(x.n);
+            buffer.putInt(x.n); //made it all the way to here
 
             //writing leaf
             if (x.leaf)
@@ -459,14 +544,17 @@ public class BTree {
                 }
             }
 
-            //writing children
-            for (int i = 0; i < (2 * t); i++) {
-                long tempChild = x.children[i];
-                if ((i < tempN + 1) && (!tempLeaf))
-                    buffer.putLong(tempChild);
-                else
-                    buffer.put((byte)0);
+            if (!tempLeaf) {
+                //writing children
+                for (int i = 0; i < (2 * t); i++) {
+                    long tempChild = x.children[i];
+                    if ((i < tempN + 1) && (!tempLeaf))
+                        buffer.putLong(tempChild);
+                    else
+                        buffer.put((byte)0);
+                }
             }
+
 
             buffer.flip();
             file.write(buffer);
