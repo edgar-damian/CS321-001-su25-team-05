@@ -184,7 +184,7 @@ public class BTree {
 
             s.children[0] = root.address;
             root = s;
-            BTreeSplitChild(s,0);
+            BTreeSplitChild(s,0); //error called on here
             numNodes++;
             return s;
         }
@@ -194,7 +194,7 @@ public class BTree {
             //Node y = x.children;
             Node y = new Node();
             try{
-                y = diskRead(x.children[i]);
+                y = diskRead(x.children[i]); //this disk read fails. why?
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -266,14 +266,12 @@ public class BTree {
          * start a new search there, and so on until either the key k is found or null is returned.
          */
         public TreeObject search (String k){
-
             Node x = root;
-
             int i = 0;
-            while (i <= x.n && k.compareTo(x.keys[i].getKey()) > 0){
+            while (i < x.n && k.compareTo(x.keys[i].getKey()) > 0){
                 i++;
             }
-            if (i <= x.n && k == x.keys[i].getKey()){
+            if (i < x.n && k == x.keys[i].getKey()){
                 return x.keys[i];
             }
             else if (x.leaf){
@@ -287,7 +285,6 @@ public class BTree {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-
                 return searchRecur(newChild, k);
             }
             //return null;
