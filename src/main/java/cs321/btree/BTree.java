@@ -35,11 +35,7 @@ public class BTree {
         Node x = new Node();
         x.leaf = true;
         x.n = 0;
-//        try {
-//            diskWrite(x);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+
         root = x;
         numNodes++;
 
@@ -64,6 +60,11 @@ public class BTree {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        try {
+            diskWrite(x);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
 
     }
@@ -74,11 +75,6 @@ public class BTree {
         Node x = new Node();
         x.leaf = true;
         x.n = 0;
-//        try {
-//            diskWrite(x);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
         root = x;
         numNodes++;
 
@@ -104,7 +100,11 @@ public class BTree {
             e.printStackTrace();
         }
 
-
+        try {
+            diskWrite(x);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -128,19 +128,18 @@ public class BTree {
             }
             x.keys[i + 1] = obj;
             x.n++;
-            try{
+            try {
                 diskWrite(x);
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-        }
-        else {
-            while (i >= 0 && obj.compareTo(x.keys[i])<0) {
+        } else {
+            while (i >= 0 && obj.compareTo(x.keys[i]) < 0) {
                 i--;
             }
             i++;
-            try{
+            try {
                 diskRead(x.children[i]);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -153,7 +152,7 @@ public class BTree {
                 e.printStackTrace();
             }
 
-            if (childNode.n == (2*t - 1)){
+            if (childNode.n == (2 * t - 1)) {
                 BTreeSplitChild(x, i);
 //                if (obj.compareTo(x.keys[i]) > 0) {
 //                    i++;
@@ -168,11 +167,8 @@ public class BTree {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
             }
-
             BTreeInsertNonFull(childNode, obj);
-
         }
         numObjects++;
     }
@@ -189,12 +185,11 @@ public class BTree {
             return s;
         }
 
-        public void BTreeSplitChild(Node x,int i)
-        {
+        public void BTreeSplitChild(Node x,int i) {
             //Node y = x.children;
             Node y = new Node();
             try{
-                y = diskRead(x.children[i]); //this disk read fails. why?
+                y = diskRead(x.children[i]);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -202,7 +197,7 @@ public class BTree {
             Node z= new Node();
             z.leaf=y.leaf;
             z.n=t-1;
-            for(int j=0; j<t-2; j++)
+            for(int j=0; j <= t-2; j++)
             {
                 z.keys[j] = y.keys[j+t];
             }
@@ -216,7 +211,8 @@ public class BTree {
             y.n = t-1;
 
             //go back here if error
-            for(int j=x.n; j == i + 1; j--) {
+            //for(int j=x.n; j == i + 1; j--) {
+            for (int j = x.n; j >= i + 1; j--){
                 x.children[j+1]=x.children[j];
             }
             //
@@ -329,7 +325,8 @@ public class BTree {
          * @return number of bytes needed per node
          * */
         private int calculateBytes(){
-            return Integer.BYTES + 1 +((2*t-1) * Long.BYTES) + ((2*t) * Long.BYTES);
+            //return Integer.BYTES + 1 +((2*t-1) * Long.BYTES) + ((2*t) * Long.BYTES);
+            return Integer.BYTES + 1 +((2*t-1) * TreeObject.BYTES) + ((2*t) * Long.BYTES);
         }
 
         private class Node {
@@ -342,10 +339,10 @@ public class BTree {
             private boolean leaf;
             private long address;
 
-            //public static final int BYTES = Integer.BYTES + 1 +((2*t-1) * Long.BYTES) + ((2*t) * Long.BYTES);
-            //public final int BYTES = calculateBytes();
-            public final int BYTES = Integer.BYTES + 1 +((2*t-1) * Long.BYTES) + ((2*t) * Long.BYTES);
 
+            //public final int BYTES = Integer.BYTES + 1 +((2*t-1) * Long.BYTES) + ((2*t) * Long.BYTES);
+
+            public final int BYTES = Integer.BYTES + 1 +((2*t-1) * TreeObject.BYTES) + ((2*t) * Long.BYTES);
             /**
              * Basic constructor for a Node. This grabs all the variables we will use
              *
@@ -372,12 +369,15 @@ public class BTree {
                         keys[i] = tempKey;
                 }
 
-                //copying children
-                for (int i = 0; i < (2 * t); i++) {
-                    long tempChild = myChildren[i];
-                    if ((i < n + 1) && (!leaf))
-                        children[i] = tempChild;
+                if (!leaf){
+                    //copying children
+                    for (int i = 0; i < (2 * t); i++) {
+                        long tempChild = myChildren[i];
+                        if ((i < n + 1) && (!leaf))
+                            children[i] = tempChild;
+                    }
                 }
+
 
                 if (onDisk) {
                     address = nextDiskAddress;
@@ -438,6 +438,7 @@ public class BTree {
 
 
 
+
         /**
          * @author Edgar
          *
@@ -454,7 +455,7 @@ public class BTree {
          * @return
          * @throws IOException
          */
-        public Node diskRead(long diskAddress) throws IOException {
+        public Node diskReadOG(long diskAddress) throws IOException {
             if (diskAddress == 0) return null;
 
             file.position(diskAddress);
@@ -464,7 +465,7 @@ public class BTree {
             buffer.flip(); //flips the buffer so we can pull from the file
 
             TreeObject[] keys = new TreeObject[2*t - 1];
-            Long[] children = new Long[2*t - 1];
+            Long[] children = new Long[2*t];
 
             //reading n
             int n = buffer.getInt();
@@ -475,9 +476,6 @@ public class BTree {
             if (flag == 1)
                 leaf = true;
 
-
-
-
             /*
             String temp = buffer.getChar();
                 if (i < n)
@@ -485,15 +483,20 @@ public class BTree {
              */
             //reading keys
             for (int i = 0; i < (2 * t -1); i++) {
-
+                char c = buffer.getChar();
+                if (c != '\0') {
+                    keys[i] = new TreeObject(String.valueOf(c));
+                }
+            }
+            if (!leaf) {
+                //reading children
+                for (int i = 0; i < (2 * t); i++) {
+                    long tempChild = buffer.getLong(); //fails at this line
+                    if ((i < n + 1) && (!leaf))
+                        children[i] = tempChild;
+                }
             }
 
-            //reading children
-            for (int i = 0; i < (2 * t); i++) {
-                long tempChild = buffer.getLong();
-                if ((i < n + 1) && (!leaf))
-                    children[i] = tempChild;
-            }
 
             Node x = new Node(n, keys, children, leaf, diskAddress, true);
             return x;
@@ -515,7 +518,7 @@ public class BTree {
          * @param x
          * @throws IOException
          */
-        public void diskWrite(Node x) throws IOException {
+        public void diskWriteOG(Node x) throws IOException {
             file.position(x.address); //file interception null
             buffer.clear();
             int tempN = x.n;
@@ -534,7 +537,8 @@ public class BTree {
             for (int i = 0; i < (2 * t -1); i++) {
                 if (i < tempN && x.keys[i] != null){
                     String tempString = x.keys[i].getKey();
-                    buffer.put(tempString.getBytes());
+                    //buffer.put(tempString.getBytes());
+                    buffer.putChar(tempString.charAt(0));
                 } else {
                   //so we are either out of bounds or there is nothing to write
                   buffer.put((byte)0);
@@ -556,4 +560,121 @@ public class BTree {
             buffer.flip();
             file.write(buffer);
         }
+
+        public Node diskRead(long diskAddress) throws IOException {
+            if (diskAddress == 0) return null;
+
+            file.position(diskAddress);
+            buffer.clear();
+
+            file.read(buffer);
+            buffer.flip(); //flips the buffer so we can pull from the file
+
+            TreeObject[] keys = new TreeObject[2*t - 1];
+            Long[] children = new Long[2*t];
+
+            //reading n
+            int n = buffer.getInt();
+
+            // reading leaf
+            byte flag = buffer.get(); // read a byte
+            boolean leaf = false;
+            if (flag == 1)
+                leaf = true;
+
+            //reading keys
+            for (int i = 0; i < n; i++) {
+                //once per object that is actually there (According to n)
+
+                //reading string
+                StringBuilder builder = new StringBuilder();
+                for (int j = 0; j < 32; j++){
+                    char tempChar = buffer.getChar();
+                    if (tempChar != 0) {
+                        builder.append(tempChar);
+                    }
+                }
+                String tempKeyString = builder.toString();
+
+                //reading the frequency
+               long frequency = buffer.getLong();
+
+               //making key objects and adding them
+               keys[i] = new TreeObject(tempKeyString, frequency);
+            }
+
+            //reading children if necessary
+            if (!leaf) {
+                for (int i = 0; i <= n; i++) {
+                    long tempChild = buffer.getLong();
+                    children[i] = tempChild;
+                }
+            }
+
+
+            Node x = new Node(n, keys, children, leaf, diskAddress, true);
+            return x;
     }
+
+        public void diskWrite(Node x) throws IOException {
+            file.position(x.address); //file interception null
+            buffer.clear();
+            int tempN = x.n;
+            boolean tempLeaf = x.leaf;
+
+            //writing n
+            buffer.putInt(x.n); //made it all the way to here
+
+            //writing leaf
+            if (x.leaf)
+                buffer.put((byte)1);
+            else
+                buffer.put((byte)0);
+
+            //keys -----------------------------------------------------------------------------------------------
+            for (int i = 0; i < (2 * t -1); i++) {
+               //once per object
+                String tempString = "";
+                if (x.keys[i] != null && i < tempN ) {
+                    tempString = x.keys[i].getKey();
+                }
+
+                //writing string
+                for (int j = 0; j < 32; j++){
+                    if (i < tempN && j < tempString.length()){
+                        //makes sure we are in bounds of the array and that what we try to put != null
+                        buffer.putChar(tempString.charAt(j));
+                    } else { //pads the rest of the space
+                        //buffer.putChar(0); //
+                        buffer.putChar((char) 0);
+                    }
+                }
+
+                //writing the frequency
+                long tempFrequency = 0L;
+                if (x.keys[i] != null)
+                    tempFrequency = x.keys[i].getCount();
+
+                buffer.putLong(tempFrequency);
+            } //-------------------------------------------------------------------------------------------------------
+
+
+            //children -----------------------------------------------------------------------------------------------
+            if (!tempLeaf) {
+                //writing children
+                for (int i = 0; i < (2 * t); i++) {
+                    long tempChild = 0L;
+                    if (x.children[i] != null)
+                        tempChild = x.children[i];
+
+                    if ((i < tempN + 1 ) && x.children[i] != null)
+                        buffer.putLong(tempChild);
+                    else
+                        buffer.putLong(0L);
+                }
+            }
+            //-------------------------------------------------------------------------------------------------------
+            buffer.flip();
+            file.write(buffer);
+    }
+}
