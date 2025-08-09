@@ -19,13 +19,16 @@ public class BTree {
     private long nextDiskAddress = METADATA_SIZE;
     private FileChannel file;
     private ByteBuffer buffer;
-    private int nodeLength; //
+    private int nodeLength; //the length of each node in bytes
 
     private int t; //should be initialized by constructor?
     private int numNodes = 0; //number of nodes in the tree
     private int numObjects = 0; //number of objects inside each node
     private long rootAddress = METADATA_SIZE;
     private Node root;
+
+
+
 
     /**
      * Constructor
@@ -257,13 +260,6 @@ public class BTree {
         return 0;
     }
 
-    /**
-     * @author Edgar
-     *
-     * This method will search through a BTree, it starts at Node x, if they key we look for is not
-     * in the array of keys, it will recursively call itself in the corresponding children array and
-     * start a new search there, and so on until either the key k is found or null is returned.
-     */
     public TreeObject search (String k){
         Node x = root;
         int i = 0;
@@ -320,108 +316,102 @@ public class BTree {
         //return null;
     }
 
-    /**
-     * This method calculates the number of bytes needed per each node
-     * The calculation is as follows:
-     *
-     * n: Integer.BYTES
-     * leaf: '1'
-     * keys: ((2 * t -1) * Long.BYTES)
-     * children: ((2 * t) * Long.BYTES)
-     *
-     * @return number of bytes needed per node
-     * */
     private int calculateBytes(){
-        //return Integer.BYTES + 1 +((2*t-1) * Long.BYTES) + ((2*t) * Long.BYTES);
         return Integer.BYTES + 1 +((2*t-1) * TreeObject.BYTES) + ((2*t) * Long.BYTES);
     }
 
     private class Node {
 
-        private int n; //represents the number of keys inside the node
-
-        //private String[] keys; //array of strings inside a node
-        private TreeObject[] keys;// = new TreeObject[2*t - 1];
-        private Long[] children;// = new Long[ 2*t ]; //array of pointers to children
+        private int n; //num of keys in node
+        private TreeObject[] keys;
+        private Long[] children;
         private boolean leaf;
         private long address;
-
-
-        //public final int BYTES = Integer.BYTES + 1 +((2*t-1) * Long.BYTES) + ((2*t) * Long.BYTES);
-
         public final int BYTES = Integer.BYTES + 1 +((2*t-1) * TreeObject.BYTES) + ((2*t) * Long.BYTES);
-        /**
-         * Basic constructor for a Node. This grabs all the variables we will use
-         *
-         * @param myN
-         * @param myKeys an array of TreeObjects
-         * @param myChildren an array of children (Longs)
-         * @param isLeaf
-         * @param address current address, gets updates if onDisk is true
-         * @param onDisk
-         */
-        public Node(int myN, TreeObject[] myKeys, Long[] myChildren, boolean isLeaf, long address, boolean onDisk) {
 
-            this.keys = new TreeObject[2 * BTree.this.t - 1];
-            this.children = new Long[2 * BTree.this.t];
-
-            this.n = myN;
-            this.leaf = isLeaf;
-            this.address = address;
-
-            //copying keys
-            for (int i = 0; i < (2 * t -1); i++) {
-                TreeObject tempKey = myKeys[i]; //grabs each key one by one
-                if (i < n)
-                    keys[i] = tempKey;
-            }
-
-            if (!leaf){
-                //copying children
-                for (int i = 0; i < (2 * t); i++) {
-
-                    //only grabbing from the known array
-                    if (i <= n){
-                        Long tempChild = myChildren[i];
-                        if (tempChild != null){
-                            children[i] = tempChild;
-                        } else {
-                            children[i] = null;
-                        }
-                    }
-                }
-            }
-
-            if (onDisk) {
-                address = nextDiskAddress;
-                nextDiskAddress += nodeLength;
-            }
-        }
-
-        /**
-         * Empty Node constructor, should ONLY be called when making a NEW node that
-         * has not been in the disk.
-         */
         public Node(){
             this.keys = new TreeObject[2 * BTree.this.t - 1];
             this.children = new Long[2 * BTree.this.t];
-            //
-            address = nextDiskAddress;
+//            address = nextDiskAddress;
+            this.address = nextDiskAddress;
             nextDiskAddress += nodeLength;
-            //
         }
 
-        public Node(boolean onDisk){
+        public Node(boolean makeNew){
             this.keys = new TreeObject[2 * BTree.this.t - 1];
             this.children = new Long[2 * BTree.this.t];
-            //
+            if (makeNew) {
+//                address = nextDiskAddress;
+                this.address = nextDiskAddress;
+                nextDiskAddress += nodeLength;
+            } else {
+                this.address = 0;
+            }
+        }
 
+        public Node(int myN, TreeObject[] myKeys, Long[] myChildren, boolean isLeaf, long address, boolean onDisk) {
+            this.keys = new TreeObject[2 * BTree.this.t - 1];
+            this.children = new Long[2 * BTree.this.t];
+            this.n = myN;
+            this.leaf = isLeaf;
+
+            //my attempt vs alternative
+            /*
+            this.address = address;
             if (onDisk) {
                 address = nextDiskAddress;
                 nextDiskAddress += nodeLength;
             }
-        }
 
+             */
+
+            if (onDisk) {
+                this.address = address;
+            } else {
+                this.address = nextDiskAddress;
+                nextDiskAddress += nodeLength;
+            }
+
+            if (address == 0L || myKeys == null || (!isLeaf && myChildren == null) ) {
+                System.err.println("Something is null :/");
+                System.err.println("address = " + address);
+                System.err.println("myKeys = " + myKeys);
+                System.err.println("myChildren = " + myChildren);
+            }
+
+            //copying keys
+            if (myN <= (2*t -1)){ //making sure that myN is in bounds
+                for (int i = 0; i < (2 * t -1); i++) {
+                    this.keys[i] = myKeys[i];
+                }
+            } else {
+                System.err.println("myN was not in bounds: " + myN + " / " + (2 * t -1));
+            }
+
+            //copying children
+            if (!leaf && myN <= (2*t) ){
+                for (int i = 0; i <= myN; i++) {
+                    this.children[i] = myChildren[i];
+                }
+            } else {
+                System.err.println("myN was not in bounds: " + myN + " / " + (2 * t));
+            }
+
+            /**
+            if (myKeys != null) {
+                for (int i = 0; i < Math.min(myN, 2 * t - 1); i++) {
+                    this.keys[i] = myKeys[i];
+                }
+            }
+
+            if (!leaf && myChildren != null) {
+                for (int i = 0; i < Math.min(myN + 1, 2 * t); i++) {
+                    this.children[i] = myChildren[i];
+                }
+            }
+            */
+
+        }
 
     }
 
@@ -440,7 +430,6 @@ public class BTree {
         tmpbuffer.flip();
         rootAddress = tmpbuffer.getLong();
     }
-
     /**
      * Write the metadata to the data file.
      * @throws IOException
@@ -456,6 +445,7 @@ public class BTree {
         tmpbuffer.flip();
         file.write(tmpbuffer);
     }
+
 
     /**
      * @author Edgar
