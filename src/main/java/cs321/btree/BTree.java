@@ -1,6 +1,6 @@
 package cs321.btree;
 
-import cs321.btree.TreeObject; //no prog
+import cs321.btree.TreeObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,108 +21,156 @@ public class BTree {
     private ByteBuffer buffer;
     private int nodeLength; //the length of each node in bytes
 
-    private int t; //should be initialized by constructor?
+    private int t;
     private int numNodes = 0; //number of nodes in the tree
     private int numObjects = 0; //number of objects inside each node
     private long rootAddress = METADATA_SIZE;
     private Node root;
 
-
-
-
-    /**
-     * Constructor
-     */
     BTree(String fileNameString) {
-        t=3;
-        Node x = new Node(true);
-        x.leaf = true;
-        x.n = 0;
+        this.t=3; //this needs to go
 
-        root = x;
-        numNodes++;
-
-        nodeLength = calculateBytes();
-        buffer = ByteBuffer.allocateDirect(calculateBytes());
+        this.nodeLength = calculateBytes();
+        this.buffer = ByteBuffer.allocateDirect(calculateBytes());
+        this.nextDiskAddress = METADATA_SIZE;
 
         File fileName = new File(fileNameString);
-
+        boolean exists;
+        if (fileName.exists()) {
+            exists = true;
+        } else {
+            exists = false;
+        }
 
         try {
-            if (!fileName.exists()) {
-                fileName.createNewFile(); // IOException
-                RandomAccessFile dataFile = new RandomAccessFile(fileName, "rw");
-                file = dataFile.getChannel();
-                writeMetaData(); // IOException
-            } else {
-                RandomAccessFile dataFile = new RandomAccessFile(fileName, "rw");
-                file = dataFile.getChannel();
-                readMetaData(); // IOException
-                root = diskRead(rootAddress); // IOException
+            //open file, create if !exists
+            if (!exists) {
+                fileName.createNewFile();
+            }
+            RandomAccessFile dataFile = new RandomAccessFile(fileName, "rw");
+            file = dataFile.getChannel();
+
+            /**
+             * This is for a brand new tree. Sets it up in the
+             * disk and get nextDiskAddress ready
+             */
+            if (!exists) {
+                Node x = new Node(true);
+                x.leaf = true;
+                x.n = 0;
+                root = x;
+                numNodes = 1;
+                diskWrite(x);
+                rootAddress = x.address;
+
+                writeMetaData();
+                //makes sure nextDiskAddress actually points to the next address
+                nextDiskAddress = Math.max(nextDiskAddress, file.size());
+            }
+            /**
+             * This is if a tree already exitst, basically
+             * load the tree by getting in the right address to continue.
+             */
+            else {
+                readMetaData();
+                root = diskRead(rootAddress);
+                nextDiskAddress = Math.max(file.size(), METADATA_SIZE);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        try {
-            diskWrite(x);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
     }
 
 
     BTree(int degree,String fileNameString) {
-        t = degree;
-        Node x = new Node(true);
-        x.leaf = true;
-        x.n = 0;
-        root = x;
-        numNodes++;
-        nodeLength = calculateBytes();
+        this.t = degree;
+        this.nodeLength = calculateBytes();
+        this.buffer = ByteBuffer.allocateDirect(calculateBytes());
+        this.nextDiskAddress = METADATA_SIZE;
 
-
-//nodeSize = x.BYTES; // this line causes an error
-        buffer = ByteBuffer.allocateDirect(calculateBytes());
 
         File fileName = new File(fileNameString);
+        boolean exists;
+        if (fileName.exists()) {
+            exists = true;
+        } else {
+            exists = false;
+        }
 
         try {
-            if (!fileName.exists()) {
-                fileName.createNewFile(); // IOException
-                RandomAccessFile dataFile = new RandomAccessFile(fileName, "rw");
-                file = dataFile.getChannel();
-                writeMetaData(); // IOException
-            } else {
-                RandomAccessFile dataFile = new RandomAccessFile(fileName, "rw");
-                file = dataFile.getChannel();
-                readMetaData(); // IOException
-                root = diskRead(rootAddress); // IOException
+            //open file, create if !exists
+            if (!exists) {
+                fileName.createNewFile();
+            }
+            RandomAccessFile dataFile = new RandomAccessFile(fileName, "rw");
+            file = dataFile.getChannel();
+
+            /**
+             * This is for a brand new tree. Sets it up in the
+             * disk and get nextDiskAddress ready
+             */
+            if (!exists) {
+                Node x = new Node(true);
+                x.leaf = true;
+                x.n = 0;
+                root = x;
+                numNodes = 1;
+                diskWrite(x);
+                rootAddress = x.address;
+
+                writeMetaData();
+                //makes sure nextDiskAddress actually points to the next address
+                nextDiskAddress = Math.max(nextDiskAddress, file.size());
+            }
+            /**
+             * This is if a tree already exitst, basically
+             * load the tree by getting in the right address to continue.
+             */
+            else {
+                readMetaData();
+                root = diskRead(rootAddress);
+                nextDiskAddress = Math.max(file.size(), METADATA_SIZE);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        try {
-            diskWrite(x);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
-
-
     public void insert (TreeObject obj){
-        Node r=root;
+
+        //checking to see if this is a duplicate
+        boolean duplicate = isDuplicate(obj);
+        if (duplicate) {
+            TreeObject originalObj = search(obj.getKey()); //incremnt the original one that is already in the tree
+            originalObj.incCount();
+
+//            try{
+//                diskWrite(originalObj); //expects a node, not TreeObj
+//            } catch (Exception e) {
+//                throw new RuntimeException(e);
+//            }
+            return; //done after that
+        }
+
+        Node r = root;
         if (r.n == ( (2*t) - 1)) {
             Node s = BTreeSplitRoot();
             BTreeInsertNonFull(s, obj);
+            numObjects++;
         } else {
             BTreeInsertNonFull(r, obj);
+            numObjects++;
         }
     }
 
+    public boolean isDuplicate (TreeObject obj){
+        TreeObject check = search(obj.getKey());
+        if (check == null) {
+            return false;
+        }
+        return true;
+
+    }
     public void BTreeInsertNonFull(Node x, TreeObject obj) {
         int i = x.n - 1;
         if (x.leaf) {
@@ -145,40 +193,40 @@ public class BTree {
                 i--;
             }
             i++;
+            /*
+            DISK-READ(x.c[i])
+            if x.c[i].n == 2t - 1				// child is full
+                BTREE-SPLIT-CHILD(x, i)
+                if k > x.key[i]
+                    i = i + 1
+            BTREE-INSERT-NONFULL(x.c[i], k)
+
+             */
+            Node childNode = null; //temp holder
             try {
-                diskRead(x.children[i]);
+                //diskRead(x.children[i]);
+                childNode = diskRead(x.children[i] == null ? 0L : x.children[i]);
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            Node childNode = new Node(false);
-            try {
-                childNode = diskRead(x.children[i]);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            if (childNode.n == (2 * t - 1)) {
+            if (childNode.n == (2 * t - 1) && childNode != null) {
                 BTreeSplitChild(x, i);
-//                if (obj.compareTo(x.keys[i]) > 0) {
-//                    i++;
-//                }
                 if (obj.compareTo(x.keys[i]) > 0) {
                     i++;
                 }
-
-                childNode = null;
                 try {
-                    childNode = diskRead(x.children[i]);
+                    childNode = diskRead(x.children[i] == null ? 0L : x.children[i]);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-            BTreeInsertNonFull(childNode, obj);
+            if (childNode != null) {
+                BTreeInsertNonFull(childNode, obj);
+            }
         }
-        numObjects++;
+        //numObjects++;
     }
-
     public Node BTreeSplitRoot() {
         Node s = new Node(true); //going to be the root/parent
         s.leaf = false;
@@ -186,140 +234,151 @@ public class BTree {
 
         s.children[0] = root.address;
         root = s;
-        BTreeSplitChild(s,0); //error called on here
+        BTreeSplitChild(s,0);
+
+        //update s
+        try {
+            diskWrite(s);
+            rootAddress = s.address;
+            writeMetaData();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //
+
         numNodes++;
         return s;
     }
 
-    public void BTreeSplitChild(Node x,int i) {
-        //Node y = x.children;
-        Node y = new Node(true);
+    public void BTreeSplitChild(Node current, int i) {
+        Node left = null;
         try{
-            y = diskRead(x.children[i]);
-        } catch (IOException e) {
-            e.printStackTrace();
+            left =  diskRead(current.children[i]);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        if (left == null) {
+            System.err.println("BTreeSplitChild: child is null");
+            return;
         }
 
-        Node z= new Node(true);
-        z.leaf=y.leaf;
-        z.n=t-1;
-        for(int j=0; j <= t-2; j++)
-        {
-            z.keys[j] = y.keys[j+t];
+        Node right = new Node(true);
+        right.leaf = left.leaf;
+        right.n = t - 1;
+        //for (int j = 0; j < t - 2; j++) {
+        for (int j = 0; j < t - 1; j++) {
+            right.keys[j] = left.keys[j+t];
         }
-        if(!y.leaf)
-        {
-            for(int j=0;j<t-1;j++)
-            {
-                z.children[j]=y.children[j+t];
+        if (!left.leaf) {
+            for (int j = 0; j < t; j++) {
+                right.children[j] = left.children[j + t];
             }
         }
-        y.n = t-1;
+        left.n = t - 1;
 
-        //go back here if error
-        //for(int j=x.n; j == i + 1; j--) {
-        for (int j = x.n; j >= i + 1; j--){
-            x.children[j+1]=x.children[j];
+        for (int j = current.n; j >= i + 1; j--) {
+            current.children[j + 1] = current.children[j];
         }
-        //
+        current.children[i + 1] = right.address;
+        for (int j = current.n - 1; j >= i; j--) {
+            current.keys[j + 1] = current.keys[j];
+        }
+        current.keys[i] = left.keys[t - 1];
+        current.n++;
 
-        x.children[1 + i] = z.address;
-        for(int j = x.n - 1; j >= i; j--) {
-            x.keys[j+1]=x.keys[j];
+
+        //clearing up node
+        for (int j = t - 1; j < (2 * t - 1); j++) {
+            left.keys[j] = null;
         }
-        x.keys[i]=y.keys[t-1];
-        x.n++;
+        if (!left.leaf) {
+            for (int j = t; j < (2 * t); j++) {
+                left.children[j] = null;
+            }
+        }
 
         try {
-            diskWrite(y);
-            diskWrite(z);
-            diskWrite(x);
+            diskWrite(left);
+            diskWrite(right);
+            diskWrite(current);
         } catch (IOException e) {
+            System.err.println("BTreeSplitChild: oh no bro");
             e.printStackTrace();
         }
         numNodes++;
     }
 
-    long getSize()
-    {
+
+    long getSize() {
         return numObjects;
     }
-
-    int getDegree()
-    {
+    int getDegree() {
         return t;
     }
-
-    long getNumberOfNodes()
-    {
+    long getNumberOfNodes(){
         return numNodes;
     }
+    int getHeight() {
+        //h ≤ logt((n+1)/2)
+        double d = (numNodes + 1) / 2;
+        double base = t;
 
-    int getHeight()
-    {
-        return 0;
+        //finding base t log
+        double logBaseT = Math.log(d) / Math.log(base);
+        return(int) Math.ceil(logBaseT);
+
+
     }
-
     public TreeObject search (String k){
         Node x = root;
-        int i = 0;
-
-        while (i < x.n && k.compareTo(x.keys[i].getKey()) > 0){
-            i++;
-        }
-        //if (i < x.n && k == x.keys[i].getKey()){
-        if (i < x.n && k.equals(x.keys[i].getKey())) {
-            return x.keys[i];
-        }
-        else if (x.leaf){
-            //not in Tree
-            return null;
-        }
-        else {
-            Node newChild = new Node(false);
-            try{
-                newChild = diskRead(x.children[i]);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return searchRecur(newChild, k);
-        }
-        //return null;
+        return searchRecur(x,k);
     }
-
-    public TreeObject searchRecur (Node currentChild, String k){
-
-        Node x = currentChild;
-        int i = 0;
-        //while (i <= x.n && k.compareTo(x.keys[i].getKey()) > 0){
-        while (i < x.n && k.compareTo(x.keys[i].getKey()) > 0) {
-            i++;
-        }
-        //if (i <= x.n && k == x.keys[i].getKey()){
-        if (i < x.n && k.equals(x.keys[i].getKey())) {
-            return x.keys[i];
-        }
-        else if (x.leaf){
-            //not in Tree
+    public TreeObject searchRecur (Node currentNode, String k){
+        if (currentNode == null){
+            System.err.println("Error in searchRecur: currentNode is null: " + currentNode);
             return null;
         }
-        else {
+        int i = 0;
+
+        while (i < currentNode.n && k.compareTo(currentNode.keys[i].getKey()) > 0) {
+            i++;
+        }
+        if (i < currentNode.n && k.equals(currentNode.keys[i].getKey())) {
+            return currentNode.keys[i];
+        } else if (currentNode.leaf){  //not in Tree
+            return null;
+        } else {
+            /*
             Node newChild = new Node(false);
             try{
-                newChild = diskRead(x.children[i]);
+                newChild = diskRead(currentNode.children[i]);
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
             return searchRecur(newChild, k);
-        }
-        //return null;
-    }
 
+             */
+            try{
+                Node child = diskRead(currentNode.children[i] == null ? 0L : currentNode.children[i]);
+                return searchRecur(child, k);
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+       /*
+        } else {
+            Node child = diskRead(current.children[i] == null ? 0L : current.children[i]);
+            return searchRecur(child, k);
+        }
+        */
+
+    }
     private int calculateBytes(){
         return Integer.BYTES + 1 +((2*t-1) * TreeObject.BYTES) + ((2*t) * Long.BYTES);
     }
-
     private class Node {
 
         private int n; //num of keys in node
@@ -355,16 +414,6 @@ public class BTree {
             this.n = myN;
             this.leaf = isLeaf;
 
-            //my attempt vs alternative
-            /*
-            this.address = address;
-            if (onDisk) {
-                address = nextDiskAddress;
-                nextDiskAddress += nodeLength;
-            }
-
-             */
-
             if (onDisk) {
                 this.address = address;
             } else {
@@ -384,41 +433,22 @@ public class BTree {
                 for (int i = 0; i < (2 * t -1); i++) {
                     this.keys[i] = myKeys[i];
                 }
-            } else {
-                System.err.println("myN was not in bounds: " + myN + " / " + (2 * t -1));
             }
+//            else {
+//                System.err.println("myN was not in bounds: " + myN + " / " + (2 * t -1));
+//            }
 
             //copying children
             if (!leaf && myN <= (2*t) ){
                 for (int i = 0; i <= myN; i++) {
                     this.children[i] = myChildren[i];
                 }
-            } else {
-                System.err.println("myN was not in bounds: " + myN + " / " + (2 * t));
             }
-
-            /**
-            if (myKeys != null) {
-                for (int i = 0; i < Math.min(myN, 2 * t - 1); i++) {
-                    this.keys[i] = myKeys[i];
-                }
-            }
-
-            if (!leaf && myChildren != null) {
-                for (int i = 0; i < Math.min(myN + 1, 2 * t); i++) {
-                    this.children[i] = myChildren[i];
-                }
-            }
-            */
-
+//            else {
+//                System.err.println("myN was not in bounds: " + myN + " / " + (2 * t));
+//            }
         }
-
     }
-
-    /**
-     * Read the metadata from the data file.
-     * @throws IOException
-     */
     public void readMetaData() throws IOException {
         file.position(0);
 
@@ -430,10 +460,6 @@ public class BTree {
         tmpbuffer.flip();
         rootAddress = tmpbuffer.getLong();
     }
-    /**
-     * Write the metadata to the data file.
-     * @throws IOException
-     */
     public void writeMetaData() throws IOException {
         file.position(0);
 
@@ -445,26 +471,11 @@ public class BTree {
         tmpbuffer.flip();
         file.write(tmpbuffer);
     }
-
-
-    /**
-     * @author Edgar
-     *
-     * This function will read from the disk, take that information and
-     * put it in a new node called x. This will be returned at the end.
-     *
-     * Order of reading:
-     *      n
-     *      leaf
-     *      keys
-     *      children
-     *
-     * @param diskAddress
-     * @return
-     * @throws IOException
-     */
     public Node diskRead(long diskAddress) throws IOException {
-        if (diskAddress == 0) return null;
+        if (diskAddress == 0){
+            System.out.println("FLAG: diskAddress is zero when calling diskAddress");
+            return null;
+        }
 
         file.position(diskAddress);
         buffer.clear();
@@ -485,9 +496,7 @@ public class BTree {
             leaf = true;
 
         //reading keys
-        for (int i = 0; i < n; i++) {
-            //once per object that is actually there (According to n)
-
+        for (int i = 0; i < (2 * t -1); i++) {
             //reading string
             StringBuilder builder = new StringBuilder();
             for (int j = 0; j < 32; j++){
@@ -501,44 +510,35 @@ public class BTree {
             //reading the frequency
             long frequency = buffer.getLong();
 
-            //making key objects and adding them
-            keys[i] = new TreeObject(tempKeyString, frequency);
-        }
-
-        //reading children if necessary
-        if (!leaf) {
-            for (int i = 0; i <= n; i++) {
-                long tempChild = buffer.getLong();
-                children[i] = tempChild;
+            if (i < n){ //only builds valid keys for objects that are in bound
+                keys[i] = new TreeObject(tempKeyString, frequency);
+            } else {
+                keys[i] = null;
             }
         }
 
+        for (int i = 0; i < (t * 2); i++) {
+            long tempChild = buffer.getLong();
+            if (tempChild != 0L && i <= n){
+                children[i] = tempChild;
+            } else {
+                children[i] = null;
+            }
+        }
 
         Node x = new Node(n, keys, children, leaf, diskAddress, true);
         return x;
     }
-
-    /**
-     * @author Edgar
-     *
-     * This function will take in a node as a parameter and write it onto the disk.
-     * If the keys or children arrays are not fully occupied, the function will
-     * fill the remainder with 0.
-     *
-     * Order of writing:
-     *      n
-     *      leaf
-     *      keys
-     *      children
-     *
-     * @param x
-     * @throws IOException
-     */
     public void diskWrite(Node x) throws IOException {
+
+        if (x.address == 0){
+            x.address = nextDiskAddress;
+            nextDiskAddress += nodeLength;
+            System.out.println("FLAG: Node shifted address in diskWrite");
+        }
+
         file.position(x.address); //file interception null
         buffer.clear();
-        int tempN = x.n;
-        boolean tempLeaf = x.leaf;
 
         //writing n
         buffer.putInt(x.n); //made it all the way to here
@@ -548,18 +548,16 @@ public class BTree {
             buffer.put((byte)1);
         else
             buffer.put((byte)0);
-
-        //keys -----------------------------------------------------------------------------------------------
+       //keys -----------------------------------------------------------------------------------------------
         for (int i = 0; i < (2 * t -1); i++) {
             //once per object
             String tempString = "";
-            if (x.keys[i] != null && i < tempN ) {
+            if (x.keys[i] != null && i < x.n) {
                 tempString = x.keys[i].getKey();
             }
-
             //writing string
             for (int j = 0; j < 32; j++){
-                if (i < tempN && j < tempString.length()){
+                if (i < x.n && j < tempString.length()){
                     //makes sure we are in bounds of the array and that what we try to put != null
                     buffer.putChar(tempString.charAt(j));
                 } else { //pads the rest of the space
@@ -567,29 +565,20 @@ public class BTree {
                     buffer.putChar((char) 0);
                 }
             }
-
             //writing the frequency
             long tempFrequency = 0L;
             if (x.keys[i] != null)
                 tempFrequency = x.keys[i].getCount();
-
             buffer.putLong(tempFrequency);
         } //-------------------------------------------------------------------------------------------------------
-
-
         //children -----------------------------------------------------------------------------------------------
-        if (!tempLeaf) {
-            //writing children
-            for (int i = 0; i < (2 * t); i++) {
-                long tempChild = 0L;
-                if (x.children[i] != null)
-                    tempChild = x.children[i];
 
-                if ((i < tempN + 1 ) && x.children[i] != null)
-                    buffer.putLong(tempChild);
-                else
-                    buffer.putLong(0L);
-            }
+        //writing children
+        for (int i = 0; i < (2 * t); i++) {
+            long tempChild = 0L;
+            if ((i <= x.n ) && x.children[i] != null)
+                tempChild = x.children[i];
+            buffer.putLong(tempChild);
         }
         //-------------------------------------------------------------------------------------------------------
         buffer.flip();
