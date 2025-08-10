@@ -141,14 +141,23 @@ public class BTree {
         //checking to see if this is a duplicate
         boolean duplicate = isDuplicate(obj);
         if (duplicate) {
+            /*
             TreeObject originalObj = search(obj.getKey()); //incremnt the original one that is already in the tree
             originalObj.incCount();
 
-//            try{
-//                diskWrite(originalObj); //expects a node, not TreeObj
-//            } catch (Exception e) {
-//                throw new RuntimeException(e);
-//            }
+
+            try{
+                Node updateNode = searchNode(root, obj.getKey());
+                //at this moment, updateNode pulls the right node, but it pulls it from disk, the increment did not happen, and the update writes the same info
+
+                diskWrite(updateNode); //expects a node, not TreeObj
+            } catch (Exception e) {
+                System.out.println("Oh No bro, duplicate not updated");
+                throw new RuntimeException(e);
+            }
+            return; //done after that
+             */
+            searchNode(root, obj.getKey());
             return; //done after that
         }
 
@@ -367,15 +376,65 @@ public class BTree {
             }
             return null;
         }
-
-       /*
-        } else {
-            Node child = diskRead(current.children[i] == null ? 0L : current.children[i]);
-            return searchRecur(child, k);
-        }
-        */
-
     }
+    public Node searchNodeOG (Node currentNode, String k){
+        if (currentNode == null){
+            System.err.println("Error in searchRecur: currentNode is null: " + currentNode);
+            return null;
+        }
+        int i = 0;
+
+        while (i < currentNode.n && k.compareTo(currentNode.keys[i].getKey()) > 0) {
+            i++;
+        }
+        if (i < currentNode.n && k.equals(currentNode.keys[i].getKey())) {
+            return currentNode;
+        } else if (currentNode.leaf){  //not in Tree
+            return null;
+        } else {
+            try{
+                Node child = diskRead(currentNode.children[i] == null ? 0L : currentNode.children[i]);
+                //return searchNode(child, k);
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
+    public void searchNode (Node currentNode, String k){
+        if (currentNode == null){
+            System.err.println("Error in searchRecur: currentNode is null: " + currentNode);
+            return;
+        }
+        int i = 0;
+
+        while (i < currentNode.n && k.compareTo(currentNode.keys[i].getKey()) > 0) {
+            i++;
+        }
+        if (i < currentNode.n && k.equals(currentNode.keys[i].getKey())) {
+            currentNode.keys[i].incCount();
+            try{
+                diskWrite(currentNode);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            return;
+        } else if (currentNode.leaf){
+            //not in Tree
+            System.out.println("Not in tree");
+            return;
+        } else {
+            try{
+                Node child = diskRead(currentNode.children[i] == null ? 0L : currentNode.children[i]);
+                searchNode(child, k);
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+            return;
+        }
+    }
+
+
     private int calculateBytes(){
         return Integer.BYTES + 1 +((2*t-1) * TreeObject.BYTES) + ((2*t) * Long.BYTES);
     }
