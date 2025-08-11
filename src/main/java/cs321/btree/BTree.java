@@ -421,6 +421,41 @@ public class BTree {
     private int calculateBytes(){
         return Integer.BYTES + 1 +((2*t-1) * TreeObject.BYTES) + ((2*t) * Long.BYTES);
     }
+
+    public String[] getSortedKeyArray() {
+        String[] s = new String[numObjects];
+        Node x=root;
+        Node p=x;
+        int index=0;
+
+        return inOrder(s,p,x,index);
+    }
+
+
+    public String[] inOrder(String[] s, Node parent, Node child, int index)
+    {
+        for (int j = 0; j < parent.n; j++) {
+            try {
+                child = diskRead(parent.children[j]);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            s = inOrder(s, child, null, index);
+            while (index < s.length && s[index] != null) {
+                index++;
+            }
+            s[index] = parent.keys[j] + "";
+        }
+        try {
+            child = diskRead(parent.children[parent.n]);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        s = inOrder(s, child, null, index);
+        return s;
+    }
+
+
     private class Node {
 
         private int n; //num of keys in node
