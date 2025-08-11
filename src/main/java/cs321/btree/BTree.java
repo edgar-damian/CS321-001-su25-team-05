@@ -20,16 +20,14 @@ public class BTree {
     private FileChannel file;
     private ByteBuffer buffer;
     private int nodeLength; //the length of each node in bytes
-
-    private int t;
+    private int diskBlock= 4096;
+    private int t=(diskBlock-Integer.BYTES-1+(2*Long.BYTES))/(4*Long.BYTES);
     private int numNodes = 0; //number of nodes in the tree
     private int numObjects = 0; //number of objects inside each node
     private long rootAddress = METADATA_SIZE;
     private Node root;
 
     BTree(String fileNameString) {
-        this.t=3; //this needs to go
-
         this.nodeLength = calculateBytes();
         this.buffer = ByteBuffer.allocateDirect(calculateBytes());
         this.nextDiskAddress = METADATA_SIZE;
