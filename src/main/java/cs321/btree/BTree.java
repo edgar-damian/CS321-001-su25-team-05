@@ -1,14 +1,11 @@
 package cs321.btree;
 
 import cs321.btree.TreeObject;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
-
-
 import java.io.FileNotFoundException;
 import java.io.RandomAccessFile;
 import java.util.Random;
@@ -21,7 +18,8 @@ public class BTree {
     private ByteBuffer buffer;
     private int nodeLength; //the length of each node in bytes
     private int diskBlock= 4096;
-    private int t=(diskBlock-Integer.BYTES-1+(2*Long.BYTES))/(4*Long.BYTES);
+
+    private int t;
     private int numNodes = 0; //number of nodes in the tree
     private int numObjects = 0; //number of objects inside each node
     private long rootAddress = METADATA_SIZE;
@@ -31,6 +29,8 @@ public class BTree {
         this.nodeLength = calculateBytes();
         this.buffer = ByteBuffer.allocateDirect(calculateBytes());
         this.nextDiskAddress = METADATA_SIZE;
+        this.t=(diskBlock-Integer.BYTES-1+(2*Long.BYTES))/(4*Long.BYTES);
+
 
         File fileName = new File(fileNameString);
         boolean exists;
