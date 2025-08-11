@@ -8,6 +8,7 @@ import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.io.FileNotFoundException;
 import java.io.RandomAccessFile;
+import java.util.List;
 import java.util.Random;
 
 public class BTree {
@@ -657,4 +658,48 @@ public class BTree {
         buffer.flip();
         file.write(buffer);
     }
+
+    public String[] getSortedKeyArray() throws IOException {
+        ArrayList<String> sortedKeyArr = new ArrayList<>(); // empty arr for the keys
+        recurGetSortedKeyArray(root, sortedKeyArr); // start with the root
+        return sortedKeyArr.toArray(new String[0]); // return the sortedArr
+    }
+
+    private void recurGetSortedKeyArray(Node node, List<String> sortedKeyArr) throws IOException {
+        if (node == null) return; // check that the node is not null
+
+        if (node.leaf) {
+            // if a leaf then already sorted
+            for (int i = 0; i < node.n; i++) {
+                if (node.keys[i] != null) {
+                    sortedKeyArr.add(node.keys[i].getKey()); // add key to the array
+                }
+            }
+            return; // stop the method
+        }
+
+        // loop through children of current node and get the address
+        for (int i = 0; i < node.n; i++) {
+            Long childAddr = node.children[i];
+            if (childAddr != null) {
+                Node child = diskRead(childAddr); // read the node
+                if (child != null) {
+                    recurGetSortedKeyArray(child, sortedKeyArr); // call method recrusively
+                }
+            }
+            if (node.keys[i] != null) {
+                sortedKeyArr.add(node.keys[i].getKey());
+            }
+        }
+
+        // check the last child node
+        Long lastAddr = node.children[node.n];
+        if (lastAddr != null) {
+            Node lastChild = diskRead(lastAddr); // read node
+            if (lastChild != null) {
+                recurGetSortedKeyArray(lastChild, sortedKeyArr);
+            }
+        }
+    }
+
 }
