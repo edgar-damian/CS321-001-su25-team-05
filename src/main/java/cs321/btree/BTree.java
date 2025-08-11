@@ -25,11 +25,13 @@ public class BTree {
     private long rootAddress = METADATA_SIZE;
     private Node root;
 
-    BTree(String fileNameString) {
+    public BTree(String fileNameString) {
+
+        this.t = (diskBlock - Integer.BYTES - 1 + (2 * Long.BYTES)) / (4 * Long.BYTES);
         this.nodeLength = calculateBytes();
         this.buffer = ByteBuffer.allocateDirect(calculateBytes());
         this.nextDiskAddress = METADATA_SIZE;
-        this.t = (diskBlock - Integer.BYTES - 1 + (2 * Long.BYTES)) / (4 * Long.BYTES);
+
 
 
         File fileName = new File(fileNameString);
@@ -79,7 +81,7 @@ public class BTree {
         }
     }
 
-    BTree(int degree,String fileNameString) {
+    public BTree(int degree,String fileNameString) {
         this.t = degree;
         this.nodeLength = calculateBytes();
         this.buffer = ByteBuffer.allocateDirect(calculateBytes());
