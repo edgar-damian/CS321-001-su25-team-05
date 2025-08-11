@@ -81,7 +81,6 @@ public class BTree {
         }
     }
 
-
     BTree(int degree,String fileNameString) {
         this.t = degree;
         this.nodeLength = calculateBytes();
@@ -141,22 +140,6 @@ public class BTree {
         //checking to see if this is a duplicate
         boolean duplicate = isDuplicate(obj);
         if (duplicate) {
-            /*
-            TreeObject originalObj = search(obj.getKey()); //incremnt the original one that is already in the tree
-            originalObj.incCount();
-
-
-            try{
-                Node updateNode = searchNode(root, obj.getKey());
-                //at this moment, updateNode pulls the right node, but it pulls it from disk, the increment did not happen, and the update writes the same info
-
-                diskWrite(updateNode); //expects a node, not TreeObj
-            } catch (Exception e) {
-                System.out.println("Oh No bro, duplicate not updated");
-                throw new RuntimeException(e);
-            }
-            return; //done after that
-             */
             searchNode(root, obj.getKey());
             return; //done after that
         }
@@ -172,6 +155,15 @@ public class BTree {
         }
     }
 
+    /**
+     * This method calls a search to check if the object about to be inserted
+     * is already on the tree. If it is NOT in the tree, the search will return
+     * null, and the method will return false. Else, the object is a duplicate,
+     * and the method returns true.
+     *
+     * @param obj
+     * @return returns true if obj is a duplicate, false otherwise
+     */
     public boolean isDuplicate (TreeObject obj){
         TreeObject check = search(obj.getKey());
         if (check == null) {
@@ -180,6 +172,7 @@ public class BTree {
         return true;
 
     }
+
     public void BTreeInsertNonFull(Node x, TreeObject obj) {
         int i = x.n - 1;
         if (x.leaf) {
@@ -236,6 +229,7 @@ public class BTree {
         }
         //numObjects++;
     }
+
     public Node BTreeSplitRoot() {
         Node s = new Node(true); //going to be the root/parent
         s.leaf = false;
@@ -317,31 +311,33 @@ public class BTree {
         numNodes++;
     }
 
-
     long getSize() {
         return numObjects;
     }
+
     int getDegree() {
         return t;
     }
+
     long getNumberOfNodes(){
         return numNodes;
     }
+
     int getHeight() {
-        //h ≤ logt((n+1)/2)
+        //h ≤ log[base t]((n+1)/2)
         double d = (numNodes + 1) / 2;
         double base = t;
 
         //finding base t log
         double logBaseT = Math.log(d) / Math.log(base);
         return(int) Math.ceil(logBaseT);
-
-
     }
+
     public TreeObject search (String k){
         Node x = root;
         return searchRecur(x,k);
     }
+
     public TreeObject searchRecur (Node currentNode, String k){
         if (currentNode == null){
             System.err.println("Error in searchRecur: currentNode is null: " + currentNode);
@@ -377,30 +373,14 @@ public class BTree {
             return null;
         }
     }
-    public Node searchNodeOG (Node currentNode, String k){
-        if (currentNode == null){
-            System.err.println("Error in searchRecur: currentNode is null: " + currentNode);
-            return null;
-        }
-        int i = 0;
 
-        while (i < currentNode.n && k.compareTo(currentNode.keys[i].getKey()) > 0) {
-            i++;
-        }
-        if (i < currentNode.n && k.equals(currentNode.keys[i].getKey())) {
-            return currentNode;
-        } else if (currentNode.leaf){  //not in Tree
-            return null;
-        } else {
-            try{
-                Node child = diskRead(currentNode.children[i] == null ? 0L : currentNode.children[i]);
-                //return searchNode(child, k);
-            } catch (Exception e){
-                e.printStackTrace();
-            }
-            return null;
-        }
-    }
+    /**
+     * This method should be called when we want to increment a duplicate
+     * and write it back into the disk.
+     *
+     * @param currentNode should always be root when called
+     * @param k key that needs to be incremented
+     */
     public void searchNode (Node currentNode, String k){
         if (currentNode == null){
             System.err.println("Error in searchRecur: currentNode is null: " + currentNode);
@@ -434,7 +414,10 @@ public class BTree {
         }
     }
 
-
+    /**
+     *
+     * @returns number of bytes needed to represent a whole Node
+     */
     private int calculateBytes(){
         return Integer.BYTES + 1 +((2*t-1) * TreeObject.BYTES) + ((2*t) * Long.BYTES);
     }
@@ -467,6 +450,11 @@ public class BTree {
             }
         }
 
+        /**
+         * Constructor that builds a full node
+         * This is used by diskRead, where all the data is already available
+         *
+         */
         public Node(int myN, TreeObject[] myKeys, Long[] myChildren, boolean isLeaf, long address, boolean onDisk) {
             this.keys = new TreeObject[2 * BTree.this.t - 1];
             this.children = new Long[2 * BTree.this.t];
@@ -508,6 +496,11 @@ public class BTree {
 //            }
         }
     }
+
+    /**
+     * Read the metadata from the data file.
+     * @throws IOException
+     */
     public void readMetaData() throws IOException {
         file.position(0);
 
@@ -519,6 +512,11 @@ public class BTree {
         tmpbuffer.flip();
         rootAddress = tmpbuffer.getLong();
     }
+
+    /**
+     * Write the metadata to the data file.
+     * @throws IOException
+     */
     public void writeMetaData() throws IOException {
         file.position(0);
 
@@ -530,6 +528,15 @@ public class BTree {
         tmpbuffer.flip();
         file.write(tmpbuffer);
     }
+
+    /**
+     * Reads binary data from the disk at a given address, then fully builds a node
+     * and returns it.
+     *
+     * @param diskAddress
+     * @return
+     * @throws IOException
+     */
     public Node diskRead(long diskAddress) throws IOException {
         if (diskAddress == 0){
             System.out.println("FLAG: diskAddress is zero when calling diskAddress");
@@ -588,6 +595,13 @@ public class BTree {
         Node x = new Node(n, keys, children, leaf, diskAddress, true);
         return x;
     }
+
+    /**
+     * Writes a node into disk. This will fill any empty slots with null.
+     *
+     * @param x
+     * @throws IOException
+     */
     public void diskWrite(Node x) throws IOException {
 
         if (x.address == 0){
@@ -607,7 +621,8 @@ public class BTree {
             buffer.put((byte)1);
         else
             buffer.put((byte)0);
-       //keys -----------------------------------------------------------------------------------------------
+
+       //keys
         for (int i = 0; i < (2 * t -1); i++) {
             //once per object
             String tempString = "";
@@ -620,7 +635,7 @@ public class BTree {
                     //makes sure we are in bounds of the array and that what we try to put != null
                     buffer.putChar(tempString.charAt(j));
                 } else { //pads the rest of the space
-                    //buffer.putChar(0); //
+                    //buffer.putChar(0);
                     buffer.putChar((char) 0);
                 }
             }
@@ -629,8 +644,7 @@ public class BTree {
             if (x.keys[i] != null)
                 tempFrequency = x.keys[i].getCount();
             buffer.putLong(tempFrequency);
-        } //-------------------------------------------------------------------------------------------------------
-        //children -----------------------------------------------------------------------------------------------
+        }
 
         //writing children
         for (int i = 0; i < (2 * t); i++) {
@@ -639,7 +653,7 @@ public class BTree {
                 tempChild = x.children[i];
             buffer.putLong(tempChild);
         }
-        //-------------------------------------------------------------------------------------------------------
+
         buffer.flip();
         file.write(buffer);
     }
