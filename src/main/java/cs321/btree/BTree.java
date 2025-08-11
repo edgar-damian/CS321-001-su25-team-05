@@ -26,10 +26,11 @@ public class BTree {
     private Node root;
 
     BTree(String fileNameString) {
+
+        this.t=(diskBlock-Integer.BYTES-1+(2*Long.BYTES))/(4*Long.BYTES);
         this.nodeLength = calculateBytes();
         this.buffer = ByteBuffer.allocateDirect(calculateBytes());
         this.nextDiskAddress = METADATA_SIZE;
-        this.t=(diskBlock-Integer.BYTES-1+(2*Long.BYTES))/(4*Long.BYTES);
 
 
         File fileName = new File(fileNameString);
