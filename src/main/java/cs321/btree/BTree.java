@@ -422,7 +422,7 @@ public class BTree {
     private int calculateBytes(){
         return Integer.BYTES + 1 +((2*t-1) * TreeObject.BYTES) + ((2*t) * Long.BYTES);
     }
-    private class Node {
+    public class Node {
 
         private int n; //num of keys in node
         private TreeObject[] keys;
