@@ -46,8 +46,8 @@ public class SSHCreateBTree {
         if (myArgs.getDebugLevel() == 1) {
             String dumpFileName = "dump-"+myArgs.getTreeType()+"."+myArgs.getDegree()+ ".txt";
             PrintWriter file = new PrintWriter(dumpFileName);
-//            btree.dumpFile(file);
-//            file.close();
+            btree.dumpFile(file); //edgar
+            file.close();
             System.out.println("Debug dump file created here: " + dumpFileName);
             if (myArgs.getUseDatabase() == 1){
                 // strips all chars and nums

@@ -707,14 +707,14 @@ public class BTree {
      *
      * @param file that will store the output
      */
-    public void dumpFile(File file) {
-        if (!file.exists()) {
-            System.err.println("HELP!: file was not set up");
-        }
+    public void dumpFile(PrintWriter file) {
+//        if (!file.exists()) {
+//            System.err.println("HELP!: file was not set up");
+//        }
 
         try{
-            PrintWriter out = new PrintWriter(file);
-            recurPrintToDump(root, out);
+            //PrintWriter out = new PrintWriter(file);
+            recurPrintToDump(root, file);
         } catch (IOException e){
             e.printStackTrace();
         }
