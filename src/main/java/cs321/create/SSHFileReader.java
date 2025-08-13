@@ -117,7 +117,8 @@ public class SSHFileReader {
                 }
                 return null;
 
-            case "userip":
+            //case "userip":
+            case "user-ip": //edgar
                 if (line.contains("Accepted") && !line.contains("reverse") && !line.contains("Address")) {
                     Matcher um = USER_PATTERN.matcher(line);
                     Matcher im = IP_PATTERN.matcher(line);

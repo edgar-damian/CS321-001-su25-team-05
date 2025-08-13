@@ -37,8 +37,14 @@ public class SSHCreateBTree {
         while (scanner.hasNextLine()) {
             line = scanner.nextLine();
             String log = SSHFileReader.extractSSHLogEntries(line, treeType); // call my SSHFileReader extracter method i made
-            TreeObject treeObject = new TreeObject(log); // setting the log to a treeObject
-            btree.insert(treeObject); // inserting into the btree
+
+            if (log != null){ //making sure the log is not null and doesnt write junk to the file
+                TreeObject treeObject = new TreeObject(log); // setting the log to a treeObject
+                btree.insert(treeObject); // inserting into the btree
+            }
+
+//            TreeObject treeObject = new TreeObject(log); // setting the log to a treeObject
+//            btree.insert(treeObject); // inserting into the btree
         }
         scanner.close();
 
