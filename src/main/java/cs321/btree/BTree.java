@@ -1,13 +1,11 @@
 package cs321.btree;
 
 import cs321.btree.TreeObject;
-import java.io.File;
-import java.io.IOException;
+
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
-import java.io.FileNotFoundException;
-import java.io.RandomAccessFile;
 import java.util.List;
 import java.util.Random;
 
@@ -422,6 +420,7 @@ public class BTree {
     private int calculateBytes(){
         return Integer.BYTES + 1 +((2*t-1) * TreeObject.BYTES) + ((2*t) * Long.BYTES);
     }
+
     public class Node {
 
         private int n; //num of keys in node
@@ -701,5 +700,64 @@ public class BTree {
             }
         }
     }
+
+    /**
+     * This function makes sure the file passed in exists, then calls recurPrintToDump
+     * starting at root and writing to the file that was passed in.
+     *
+     * @param file that will store the output
+     */
+    public void dumpFile(File file) {
+        if (!file.exists()) {
+            System.err.println("HELP!: file was not set up");
+        }
+
+        try{
+            PrintWriter out = new PrintWriter(file);
+            recurPrintToDump(root, out);
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+
+    }
+
+    private void recurPrintToDump(Node node, PrintWriter out) throws IOException {
+        if (node == null) return; // check that the node is not null
+
+        if (node.leaf) {
+            // if a leaf then already sorted
+            for (int i = 0; i < node.n; i++) {
+                if (node.keys[i] != null) {
+                    out.println(node.keys[i].getKey() + " " + node.keys[i].getCount());
+                }
+            }
+            return; // stop the method
+        }
+
+        // loop through children of current node and get the address
+        for (int i = 0; i < node.n; i++) {
+            Long childAddr = node.children[i];
+            if (childAddr != null) {
+                Node child = diskRead(childAddr); // read the node
+                if (child != null) {
+                    recurPrintToDump(child, out); // call method recrusively
+                }
+            }
+            if (node.keys[i] != null) {
+                out.println(node.keys[i].getKey() + " " + node.keys[i].getCount());
+            }
+        }
+
+        // check the last child node
+        Long lastAddr = node.children[node.n];
+        if (lastAddr != null) {
+            Node lastChild = diskRead(lastAddr); // read node
+            if (lastChild != null) {
+                recurPrintToDump(lastChild, out);
+            }
+        }
+
+    }
+
 
 }
