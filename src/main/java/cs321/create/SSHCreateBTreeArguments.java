@@ -125,7 +125,7 @@ public class SSHCreateBTreeArguments
             }
             else if ( arg.startsWith("--type")) {
                 //treeType = arg.substring("--tree-type=".length()).trim();
-                treeType = arg.substring("--type=".length()).trim();
+                treeType = arg.substring("--type=".length()).trim().toLowerCase();
                 if (treeType.isEmpty()) {
                     throw new ParseArgumentException("tree type is empty");
                 }
