@@ -26,7 +26,8 @@ public class SSHCreateBTree {
             System.out.println("Arguements parsed successfully" + args.toString());
         }
         int userDegree = myArgs.getDegree();
-        String fileName = "SSH_log.txt.ssh.btree." + myArgs.getTreeType()+"."+myArgs.getDegree();
+        //String fileName = "SSH_log.txt.ssh.btree." + myArgs.getTreeType()+"."+myArgs.getDegree(); //make the file name
+        String fileName = "SSH_log.txt.ssh.btree." + myArgs.getTreeType() + ".0";
         BTree btree = new BTree(userDegree, fileName);
 
         // create scanner for the file
@@ -50,7 +51,8 @@ public class SSHCreateBTree {
 
         // Allow user to build a file and check the btree, we need to implement a dumpFile method in Btree at some point
         if (myArgs.getDebugLevel() == 1) {
-            String dumpFileName = "dump-"+myArgs.getTreeType()+"."+myArgs.getDegree()+ ".txt";
+            //String dumpFileName = "dump-"+myArgs.getTreeType()+"."+myArgs.getDegree()+ ".txt";
+            String dumpFileName = "dump-" + myArgs.getTreeType() + ".0.txt";
             PrintWriter file = new PrintWriter(dumpFileName);
             btree.dumpFile(file); //edgar
             file.close();
