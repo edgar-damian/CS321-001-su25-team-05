@@ -7,10 +7,10 @@
 
 
 # Sprint 1 (July 28th, Monday 2025 - August 3rd, Sunday 2025)
-1. Pushed starter code b53905984b853dd0351e213715c7cb1073949999 `(Edgar)`
-2. Created BTree.java f69fa9a5f6831158ba9d044dd392020b95c6567a `(Edgar)`
-3. Added Node class,diskRead,and diskWrite 9f5d20d22740c399ecc0cf837a55b7ca9e9ccf7e `(Edgar)`
-4. Added constructor 9f5d20d22740c399ecc0cf837a55b7ca9e9ccf7e `(studentB)`
+1. Pushed starter code b53905984b853dd0351e213715c7cb1073949999 `(Edgar Rios)`
+2. Created BTree.java f69fa9a5f6831158ba9d044dd392020b95c6567a `(Edgar Rios)`
+3. Added Node class,diskRead,and diskWrite 9f5d20d22740c399ecc0cf837a55b7ca9e9ccf7e `(Edgar Rios)`
+4. Added constructor 9f5d20d22740c399ecc0cf837a55b7ca9e9ccf7e `(Edgar Rios)`
 5. Resolved #7 commit 278e4a3da8ff343f640bbe0bfee67365cbf33cb2 `(Diego Dominguez)`
 6. Closes #14 commit 62048ee405ce893428f723a21a599ad9ba6bef93 `(studentB)`
 7. Closes #8 commit 3c94cdbf15eb4abccf951910163b574b77883bf8 `(studentC)`
@@ -22,20 +22,20 @@
 12. Added Search adf6fa8d965284a0e080a183c71923d4c64dcbca `(Edgar)`
 13. Resolved #8 commit 9f653bc5ee0add3988ed9679769ebb89adcbfd33 `(Diego Dominguez)`
 14. Closes #9 commit 26fa11da422dd89d3e16c378108d78fd123526bd `(Diego Dominguez)`
-15. Closes #22 commit 9b40500c3cb0baa1e7c92e6edd9f2ee4f2bfe63a `(studentA)`
-16. Closes #22 part II commit 068e3eba0422eb1d042426c38c6f4d444f0fd105 `(studentA)`
-17. Closes #24 commit 12adbd5f688f06c6c102c1c3f3d174fb8f3a41c6 `(studentB)`
+15. Fixed some bugs c4d258390cd377b1884781ee1575099dbdf49a03 `(Edgar Rios)`
+16. Closes #5 commit 58fabec2c950bcef8c35786c35d69403dd209b9e `(Edgar Rios)`
+17. node class modified commit 1e13e4b3797dc5e80e97c1313b751f7a02298151 `(Edgar Rios)`
 18. Closes #29 commit 1fd905627d57841ebd56bc2b091058cad0f2e7fa `(studentC)`
-19. Closes #31 commit dec5d9cc4aa7f7b2cd60dbb45a426aed37b76a3c `(studentC)`
-20. Closes #32 commit bc66c581426a75cdb2ca13a66908c16802a82e4f `(studentC)`
+19. Cleared all errors commit 024013381e4be1144b05bd576762ff8092a44fc2 `(Edgar Rios )`
+20. BTreeTest.java now passes 0a7d81b0d1363608479719f74d6c70132c068f9b `(Edgar Rios)`
 21. Closes #33 commit 20b023b5d87d80da7b3276fc299f09dcc5b61e65 `(studentA)`
 # Sprint 3 (August 11th, Monday 2025 - August 15th, Friday 2025)
 22. Closes #13 commit 4fb2c4cc9bf6ccb9f8bf4f55fdc1a73da8558a1d `(Diego Dominguez)`
 23. Closes #14 commit 2c3bac10e01f554d1a33ee14762f2e41da79384c `(Diego Dominguez)`
-24. Closes #38 commit e97c73c090171272609bff58247130f11cbfacae `(studentB)`
-25. Closes #39 commit 2e6431affeb8a384bcbeb0562462e02adebac484 `(studentA)`
-26. Closes #42 commit e046b442141e221ed45f50ad9e8b17a004c97742 `(studentC)`
-27. Closes #5 commit 0a00427e2dbba35352f884cfeca5e07dc6d01c76 `(studentC)`
+24. Started #12 commit fa606e72eb40920d62fafd680408b1a3074cabd7 `(Edgar Rios)`
+25. Started #10 commit 59d6e3a758039d58f3c07f3db0a54dbf93b0d9d5 `(Edgar Rios)`
+26. Closes #12 commit 9790ac4da62c83bff3e6676ee814870e02abc1ff `(Edgar Rios)`
+27. Closes #10 commit c28045339ef735a2ff276f4a793b7885b85f40ec `(Edgar Rios)`
 28. Closes #40 commit 727020036df80ce8b6619a472b8950954006699d `(studentA)`
 29. Closes #41 commit d97522a4ab53b4b0a125754871a43e7c08200a9d `(studentB)`
 30. Closes #44 commit 2e8d6799a7217be470c12629b93802e6fc666c47 `(studentB)`
