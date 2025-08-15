@@ -54,13 +54,12 @@ public class SSHCreateBTree {
             //String dumpFileName = "dump-"+myArgs.getTreeType()+"."+myArgs.getDegree()+ ".txt";
             String dumpFileName = "dump-" + myArgs.getTreeType() + ".0.txt";
             PrintWriter file = new PrintWriter(dumpFileName);
-            btree.dumpFile(file); //edgar
+            btree.dumpFile(file);
             file.close();
             System.out.println("Debug dump file created here: " + dumpFileName);
             if (myArgs.getUseDatabase() == 1){
                 // strips all chars and nums
                 String tableName = myArgs.getTreeType().replaceAll("[^a-zA-Z0-9]", "");
-//            btree.dumpToDatabase("SSHLogDB.db", tableName); // need to create this method in btree tomorrow!
             }
         }
         System.out.println("BTree successfully created.");

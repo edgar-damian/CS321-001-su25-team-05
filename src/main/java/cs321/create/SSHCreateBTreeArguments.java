@@ -10,7 +10,6 @@ import cs321.common.ParseArgumentException;
  */
 public class SSHCreateBTreeArguments
 {
-	/* TODO: Complete this class */
 
     private final boolean useCache;
     private final int degree;
@@ -73,48 +72,24 @@ public class SSHCreateBTreeArguments
 
         for (String arg : args) {
             if (arg.startsWith("--degree=") ) {
-//                String userValue = arg.substring("--degree=".length());
-//                try {
-//                    degree = Integer.parseInt(userValue);
-                    /*
-                    for some reason, the script somethimes runs --degree=0, if this is the case
-                    I plan on grabbing it and making it 128 (the default degree)
-                     */
-
-//                    if (degree <= 1){
-//                        degree = 128;
-//                    }
-//
-//                    if (degree <= 0) throw new NumberFormatException();
-//                } catch (NumberFormatException e) {
-//                    throw new ParseArgumentException("degree must be a positive: " + userValue);
-//                }
                 String userValue = arg.substring("--degree=".length());
                 try{
                     degreeForFile = Integer.parseInt(userValue);
-
                     //right off the bat, if it is negative, throw
                     if (degreeForFile < 0){
                         throw new NumberFormatException();
                     }
-
                     // these are not valid degrees, so use the default
                     if (degreeForFile < 1){
                         degree = 128;
                     }
-
                     //valid degree, just copy over
                     else {
                         degree = degreeForFile;
                     }
-
-
                 } catch (NumberFormatException e){
                     throw new ParseArgumentException("degree must be a positive: " + userValue);
                 }
-
-
-
             }
             else if (arg.startsWith("--ssh-File=") || arg.startsWith("--sshFile=")) {
                 String key = arg.substring(0, arg.indexOf('=') + 1);
