@@ -10,17 +10,24 @@ import java.util.PriorityQueue;
 import cs321.Cache.Cache;
 import cs321.btree.BTree;
 import cs321.btree.TreeObject;
+import cs321.common.ParseArgumentException;
 
 public final class SSHSearchBTree {
 
 	public static void main(String[] args) {
 		SSHSearchBTreeArguments a;
-		a = SSHSearchBTreeArguments.parse(args);
+		try {
+			a = SSHSearchBTreeArguments.parse(args);
+		} catch (ParseArgumentException e) {
+			System.err.println(e.getMessage());
+			printUsageAndExit();
+			return;
+		}
 
-		/* build optional cache */
+		/* build cache if user sent 1 */
 		Cache cache = a.isCacheEnabled() ? new Cache(a.getCacheSize()) : null;
 
-		/* open BTree (constructor matches provided implementation) */
+		/* open BTree  */
 		BTree btree;
 		try {
 			btree = new BTree(a.getDegree(), a.getBtreeFile());
@@ -31,7 +38,7 @@ public final class SSHSearchBTree {
 
 		List<Result> results = new ArrayList<>();
 
-		/* read query file */
+		/* reading the  query file */
 		try (BufferedReader br = new BufferedReader(new FileReader(a.getQueryFile()))) {
 			String line;
 			while ((line = br.readLine()) != null) {
@@ -56,7 +63,7 @@ public final class SSHSearchBTree {
 				}
 
 				if (freq == -1) {
-					System.out.println(key + " NOT FOUND");
+					System.out.println(key + "not found");
 				} else {
 					results.add(new Result(key, freq));
 				}
@@ -66,7 +73,7 @@ public final class SSHSearchBTree {
 			return;
 		}
 
-		/* print results (all or top-N) */
+		/* print results */
 		if (a.getTopFrequency() > 0) {
 			PriorityQueue<Result> pq = new PriorityQueue<>(a.getTopFrequency(), Result.ORDER);
 			pq.addAll(results);
@@ -86,11 +93,6 @@ public final class SSHSearchBTree {
 			System.err.println("DEBUG: searched " + results.size() + " keys");
 		}
 
-		/* tidy */
-		// try {
-		// btree.close();
-		// } catch (Exception ignored) {
-		// }
 	}
 
 	private static void printUsageAndExit() {
@@ -100,7 +102,7 @@ public final class SSHSearchBTree {
 		System.exit(1);
 	}
 
-	/* simple POJO for results */
+	/*  for results */
 	private static final class Result {
 		final String key;
 		final long freq;

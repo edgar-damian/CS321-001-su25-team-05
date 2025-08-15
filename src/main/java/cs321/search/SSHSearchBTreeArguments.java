@@ -1,13 +1,15 @@
 package cs321.search;
 
+import cs321.common.ParseArgumentException;
+
 public final class SSHSearchBTreeArguments {
-    private final boolean cacheEnabled; // --cache=<0|1>
-    private final int degree; // --degree=<btree-degree>
-    private final String btreeFile; // --btree-file=<file>
-    private final String queryFile; // --query-file=<file>
-    private final int topFrequency; // [--top-frequency=<10|25|50>] (default 25)
-    private final Integer cacheSize; // [--cache-size=<n>] (optional)
-    private final boolean debugEnabled; // [--debug=<0|1>] (default 0)
+    private final boolean cacheEnabled;
+    private final int degree; // -
+    private final String btreeFile;
+    private final String queryFile;
+    private final int topFrequency;
+    private final Integer cacheSize;
+    private final boolean debugEnabled;
 
     private SSHSearchBTreeArguments(boolean cacheEnabled,
             int degree,
@@ -47,13 +49,13 @@ public final class SSHSearchBTreeArguments {
 
     public Integer getCacheSize() {
         return cacheSize;
-    } // may be null if not provided
+    }
 
     public boolean isDebugEnabled() {
         return debugEnabled;
     }
 
-    public static SSHSearchBTreeArguments parse(String[] args) {
+    public static SSHSearchBTreeArguments parse(String[] args) throws ParseArgumentException{
         if (args == null || args.length == 0) {
             throw new IllegalArgumentException("No arguments provided.\n" + usage());
         }
@@ -62,68 +64,96 @@ public final class SSHSearchBTreeArguments {
         Integer degree = null;
         String btree = null;
         String query = null;
-        Integer top = null; // default to 25 if missing
-        Integer cacheSize = null; // optional
-        Boolean debug = null; // default to false if missing
+        Integer topF = null;
+        Integer cacheSize = null;
+        Boolean debug = null;
 
         for (int i = 0; i < args.length; i++) {
             String arg = args[i];
 
             if (arg.startsWith("--cache=")) {
-                cache = parseBool01(arg.substring("--cache=".length()).trim(), "--cache");
-            } else if ("--cache".equals(arg) && i + 1 < args.length) {
-                cache = parseBool01(args[++i].trim(), "--cache");
-            } else if (arg.startsWith("--degree=")) {
-                degree = parsePositiveInt(arg.substring("--degree=".length()).trim(), "--degree");
-            } else if ("--degree".equals(arg) && i + 1 < args.length) {
-                degree = parsePositiveInt(args[++i].trim(), "--degree");
-            } else if (arg.startsWith("--btree-file=")) {
+                String userValue = arg.substring("--cache=".length());
+                if (!"0".equals(userValue) && !"1".equals(userValue)) {
+                    throw new ParseArgumentException("cache must be 0 or 1 " + userValue);
+                }
+                cache = ("0".equals(userValue) ? false : true);
+            }  else if (arg.startsWith("--degree=")) {
+                String userValue = arg.substring("--degree=".length());
+                try{
+                    int paredDegree = Integer.parseInt(userValue);
+                    //right off the bat, if it is negative, throw
+                    if (paredDegree < 0){
+                        throw new NumberFormatException();
+                    }
+                    // these are not valid degrees, so use the default
+                    if (paredDegree < 1){
+                        degree = 128;
+                    }
+                    //valid degree, just copy over
+                    else {
+                        degree = paredDegree;
+                    }
+                } catch (NumberFormatException e){
+                    throw new ParseArgumentException("degree must be a positive: " + userValue);
+                }
+            }  else if (arg.startsWith("--btree-file=")) {
                 btree = arg.substring("--btree-file=".length()).trim();
-            } else if ("--btree-file".equals(arg) && i + 1 < args.length) {
-                btree = args[++i].trim();
-            } else if (arg.startsWith("--query-file=")) {
+            }  else if (arg.startsWith("--query-file=")) {
                 query = arg.substring("--query-file=".length()).trim();
-            } else if ("--query-file".equals(arg) && i + 1 < args.length) {
-                query = args[++i].trim();
-            } else if (arg.startsWith("--top-frequency=")) {
-                top = parseTop(arg.substring("--top-frequency=".length()).trim());
-            } else if ("--top-frequency".equals(arg) && i + 1 < args.length) {
-                top = parseTop(args[++i].trim());
-            } else if (arg.startsWith("--cache-size=")) {
-                cacheSize = parsePositiveInt(arg.substring("--cache-size=".length()).trim(), "--cache-size");
-            } else if ("--cache-size".equals(arg) && i + 1 < args.length) {
-                cacheSize = parsePositiveInt(args[++i].trim(), "--cache-size");
-            } else if (arg.startsWith("--debug=")) {
-                debug = parseBool01(arg.substring("--debug=".length()).trim(), "--debug");
-            } else if ("--debug".equals(arg) && i + 1 < args.length) {
-                debug = parseBool01(args[++i].trim(), "--debug");
-            } else if ("--help".equals(arg) || "-h".equals(arg)) {
-                throw new IllegalArgumentException(usage());
-            } else {
+            }  else if (arg.startsWith("--top-frequency=")) {
+                String userValue = arg.substring("--top-frequency=".length()).trim();
+                try {
+                    int parseUserValue = Integer.parseInt(userValue);
+                    if (parseUserValue != 10 && parseUserValue != 25 && parseUserValue != 50) {
+                        throw new IllegalArgumentException(
+                                "Invalid top frequency" + usage());
+                    }
+                    topF = parseUserValue;
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException("Invalid top frequency\n" + usage());
+                }
+            }  else if (arg.startsWith("--cache-size=")) {
+                String userValue = arg.substring("--cache-size=".length());
+                int size;
+                try {
+                    size = Integer.parseInt(userValue);
+                } catch (NumberFormatException e) {
+                    throw new ParseArgumentException("Invalid integer  " + userValue);
+                }
+                if (size <= 0) {
+                    throw new ParseArgumentException("cache size must be greater than 0");
+                }
+                cacheSize = size;
+                cache = true;
+            }  else if (arg.startsWith("--debug=")) {
+               String userValue = arg.substring("--debug=".length()).trim();
+                if ("0".equals(userValue))
+                    debug = false;
+                if ("1".equals(userValue))
+                    debug =  true;
+
+            }  else {
                 throw new IllegalArgumentException("Unknown argument: " + arg + "\n" + usage());
             }
         }
 
         if (cache == null) {
-            throw new IllegalArgumentException("Missing required --cache.\n" + usage());
+            throw new IllegalArgumentException("Missing cache.\n" + usage());
         }
         if (degree == null) {
-            throw new IllegalArgumentException("Missing required --degree.\n" + usage());
+            throw new IllegalArgumentException("Missing degree.\n" + usage());
         }
-        if (isBlank(btree)) {
-            throw new IllegalArgumentException("Missing required --btree-file.\n" + usage());
+        if (btree == null) {
+            throw new IllegalArgumentException("Missing btree file.\n" + usage());
         }
-        if (isBlank(query)) {
-            throw new IllegalArgumentException("Missing required --query-file.\n" + usage());
+        if (query == null) {
+            throw new IllegalArgumentException("Missing query file.\n" + usage());
         }
-        if (degree < 2) {
-            throw new IllegalArgumentException("--degree must be >= 2\n" + usage());
+        if (degree < 1) {
+            throw new IllegalArgumentException("degree must be >= 1\n" + usage());
         }
-        if (top == null) {
-            top = 25; // default
-        }
-        if (cache == Boolean.FALSE && cacheSize != null) {
-            // Allow but warn via exception message? Keep permissive: ignore and allow.
+        if (topF == null) {
+            topF = 25;
         }
 
         return new SSHSearchBTreeArguments(
@@ -131,70 +161,19 @@ public final class SSHSearchBTreeArguments {
                 degree,
                 btree,
                 query,
-                top,
+                topF,
                 cacheSize,
                 debug != null && debug);
     }
 
-    private static boolean isBlank(String s) {
-        return s == null || s.trim().isEmpty();
-    }
 
-    private static Boolean parseBool01(String s, String flag) {
-        if ("0".equals(s))
-            return false;
-        if ("1".equals(s))
-            return true;
-        throw new IllegalArgumentException("Invalid " + flag + ": " + s + " (allowed: 0 or 1)\n" + usage());
-    }
 
-    private static int parsePositiveInt(String s, String flag) {
-        try {
-            int v = Integer.parseInt(s);
-            if (v <= 0) {
-                throw new IllegalArgumentException("Invalid " + flag + ": " + s + " (must be > 0)\n" + usage());
-            }
-            return v;
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid " + flag + ": " + s + " (must be an integer)\n" + usage());
-        }
-    }
 
-    private static int parseTop(String s) {
-        try {
-            int v = Integer.parseInt(s);
-            if (v != 10 && v != 25 && v != 50) {
-                throw new IllegalArgumentException(
-                        "Invalid --top-frequency: " + s + " (allowed: 10, 25, 50)\n" + usage());
-            }
-            return v;
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid --top-frequency: " + s + " (must be an integer)\n" + usage());
-        }
-    }
+
 
     public static String usage() {
-        return "Usage:\n" +
-                "  java -jar build/libs/SSHSearchBTree.jar \\\n" +
-                "       --cache=<0|1> \\\n" +
-                "       --degree=<btree-degree> \\\n" +
-                "       --btree-file=<btree-filename> \\\n" +
-                "       --query-file=<query-filename> \\\n" +
-                "       [--top-frequency=<10|25|50>] \\\n" +
-                "       [--cache-size=<n>] \\\n" +
-                "       [--debug=<0|1>]\n";
-    }
-
-    @Override
-    public String toString() {
-        return "SSHSearchBTreeArguments{" +
-                "cacheEnabled=" + cacheEnabled +
-                ", degree=" + degree +
-                ", btreeFile='" + btreeFile + '\'' +
-                ", queryFile='" + queryFile + '\'' +
-                ", topFrequency=" + topFrequency +
-                ", cacheSize=" + cacheSize +
-                ", debugEnabled=" + debugEnabled +
-                '}';
+        return "java -jar build/libs/SSHSearchBTree.jar --cache=<0/1> --degree=<btree-degree> \\\n" +
+                "          --btree-file=<btree-filename> --query-file=<query-fileaname> \\\n" +
+                "          [--top-frequency=<10/25/50>] [--cache-size=<n>]  [--debug=<0|1>]";
     }
 }
