@@ -46,8 +46,7 @@ public class SSHCreateBTree {
                 btree.insert(treeObject); // inserting into the btree
             }
 
-//            TreeObject treeObject = new TreeObject(log); // setting the log to a treeObject
-//            btree.insert(treeObject); // inserting into the btree
+
         }
         scanner.close();
 
@@ -64,6 +63,13 @@ public class SSHCreateBTree {
                 String tableName = myArgs.getTreeType().replaceAll("[^a-zA-Z0-9]", "");
             }
         }
+
+        if (myArgs.getUseDatabase() == 1){
+            String tableName = myArgs.getTreeType().replaceAll("[^a-zA-Z0-9]", "");
+            btree.dumpToDatabase("SSHLogDB.db", tableName);
+        }
+
+
         System.out.println("BTree successfully created.");
 	}
 

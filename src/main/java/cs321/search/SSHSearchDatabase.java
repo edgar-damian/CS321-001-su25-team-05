@@ -15,7 +15,7 @@ public final class SSHSearchDatabase {
         /** getting arguements **/
         SSHSearchDatabaseArguments parsedArgs = new SSHSearchDatabaseArguments(args);
         String type = parsedArgs.getType();
-        String databasePath = parsedArgs.getaDatabasePath();
+        String databasePath = System.getProperty("user.dir") + "/" + parsedArgs.getaDatabasePath();
         int topN = parsedArgs.getTopN();
 
         /** type and databasePath are required **/
@@ -31,77 +31,79 @@ public final class SSHSearchDatabase {
                 createTestDatabase(conn);
                 System.out.println("Database created: " + databasePath);
             } else {
-                String tableName=mapTypeToTable(type);
-                String sql="SELECT key, frequency FROM \""+tableName+"\"";
-                PriorityQueue<KeyFreq> pq= new PriorityQueue<>();
-
-                try(Statement stmt=conn.createStatement();
-                    ResultSet rs=stmt.executeQuery(sql)){
-                    while(rs.next()){
-                        String key=rs.getString("key");
-                        int frequency= rs.getInt("frequency");
-                        pq.add(new KeyFreq(key,frequency));
-                    }
-                } catch (Exception e) {
-                    System.err.println("Database Query Failed:"+e.getMessage());
-                    e.printStackTrace();
-                    return;
-                }
-                int count=0;
-                while(!pq.isEmpty() && count<topN)
-                {
-                    KeyFreq entry=pq.poll();
-                    System.out.println(entry.key+" "+entry.frequency);
-                    count++;
-                }
-                // use the real data
+                queryTopKeys(conn, type, topN);
             }
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
             e.printStackTrace();
         }
-    }  
+    }
+
+    private static void queryTopKeys(Connection conn, String type, int topN) throws Exception {
+        if (type == null || type.isEmpty()) {
+            throw new IllegalArgumentException("Type argument cannot be null or empty.");
+        }
+        if (topN <= 0) {
+            throw new IllegalArgumentException("topN must be a positive integer.");
+        }
+
+        String[] types = type.split(",");
+        StringBuilder unionQuery = new StringBuilder();
+
+        for (int i = 0; i < types.length; i++) {
+            String table = types[i].replace("-", "");
+            if (i > 0) unionQuery.append(" UNION ALL ");
+            unionQuery.append("SELECT '").append(table)
+                    .append("' AS source, ").append(table).append(".key, ").append(table).append(".frequency ")
+                    .append("FROM ").append(table)
+                    .append(" WHERE ").append(table).append(".frequency IS NOT NULL AND ").append(table).append(".key IS NOT NULL ");
+        }
+
+        unionQuery.append("ORDER BY frequency DESC, key ASC LIMIT ?");
+
+        try (PreparedStatement stmt = conn.prepareStatement(unionQuery.toString())) {
+            stmt.setInt(1, topN);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    String key = rs.getString("key");
+                    int freq = rs.getInt("frequency");
+
+                    // Defensive check: avoid null/blank keys
+                    if (key != null && !key.isBlank()) {
+                        System.out.println(key + " " + freq);
+                    }
+                }
+            }
+        }
+    }
+
     private static String mapTypeToTable(String type) {
         switch (type) {
             case "accepted-ip":
-                return "acceptedIP";
+                return "acceptedip";
             case "accepted-time":
-                return "acceptedTimeStamp";
+                return "acceptedtime";
             case "failed-ip":
-                return "failedIP";
+                return "failedip";
             case "failed-time":
-                return "failedTimeStamp";
+                return "failedtime";
             case "invalid-ip":
-                return "invalidIP";
+                return "invalidip";
             case "invalid-time":
-                return "invalidTimeStamp";
+                return "invalidtime";
             case "reverseaddress-ip":
-                return "reverseAddressIP";
+                return "reverseaddressip";
             case "reverseaddress-time":
-                return "reverseAddressTimeStamp";
+                return "reverseaddresstime";
             case "user-ip":
-                return "userIp";
+                return "userip";
             default:
                 throw new IllegalArgumentException("Unknown type: " + type);
         }
     }
 
-    private static class KeyFreq implements Comparable<KeyFreq>{
-        String key;
-        int frequency;
-        KeyFreq(String key,int frequency){
-            this.key=key;
-            this.frequency=frequency;
-        }
-        @Override
-        public int compareTo(KeyFreq other){
-            int freqCmp=Integer.compare(other.frequency,this.frequency);
-            if(freqCmp!=0){
-                return freqCmp;
-            }
-            return this.key.compareTo(other.key);
-        }
-        }
+
 
     private static void createTestDatabase(Connection conn) throws Exception {
         String[] testData = {

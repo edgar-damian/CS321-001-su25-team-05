@@ -6,6 +6,7 @@ import cs321.btree.TreeObject;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -839,6 +840,51 @@ public class BTree {
         }
 
     }
+
+    public void dumpToDatabase(String dbName, String tableName) throws IOException {
+        String url = "jdbc:sqlite:" + dbName;
+
+        try (Connection conn = DriverManager.getConnection(url);
+             Statement stmt = conn.createStatement()) {
+            String createSql = "CREATE TABLE IF NOT EXISTS " + tableName +
+                    "(key string, frequency,  INTEGER)";
+            stmt.executeUpdate(createSql);
+
+            String upsert = "INSERT OR REPLACE INTO " + tableName +
+                    " (key, frequency) VALUES (?, ?)";
+
+            try (PreparedStatement ps = conn.prepareStatement(upsert)) {
+                writeNodesToDb(root, ps);
+            }
+        } catch (SQLException e) {
+            throw new IOException("SQLite error: " + e.getMessage());
+        }
+
+    }
+
+    private void writeNodesToDb(Node node, PreparedStatement ps) throws IOException, SQLException {
+        if (node == null) return;
+
+        for (int i = 0; i < node.n; i++) {
+            // Visit left child
+            if (!node.leaf) {
+                writeNodesToDb(diskRead(node.children[i]), ps);
+            }
+
+            // Insert this key
+            if (node.keys[i] != null) {
+                ps.setString(1, node.keys[i].getKey());
+                ps.setLong(2, node.keys[i].getCount());
+                ps.executeUpdate();
+            }
+        }
+
+        // Visit rightmost child
+        if (!node.leaf) {
+            writeNodesToDb(diskRead(node.children[node.n]), ps);
+        }
+    }
+
 
 
 }

@@ -13,7 +13,7 @@
 9/9 tests passed.
 
 #### How many of the btree query files results matched (using the check-btree-search.sh script)?
-
+18/18
 #### How many of the database query files results matched (using the check-db-search.sh script)?
 
 
@@ -26,7 +26,8 @@ Provide a reflection by each of the team member (in a separate subsection)
 
 ## Reflection (Team member name: Edgar Rios Negrete)
 
-## Reflection (Team member name: )
+## Reflection (Team member name: Diego Dominguez)
+
 ## Reflection (Team member name: )
 
 # Additional Notes
