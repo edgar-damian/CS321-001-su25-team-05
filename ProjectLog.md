@@ -31,7 +31,7 @@
 21. Closes #33 commit 20b023b5d87d80da7b3276fc299f09dcc5b61e65 `(studentA)`
 # Sprint 3 (August 11th, Monday 2025 - August 15th, Friday 2025)
 22. Closes #13 commit 4fb2c4cc9bf6ccb9f8bf4f55fdc1a73da8558a1d `(Diego Dominguez)`
-23. Closes #37 commit ae16187de370172386a2f77332e38a45d49b40e3 `(studentB)`
+23. Closes #14 commit 2c3bac10e01f554d1a33ee14762f2e41da79384c `(Diego Dominguez)`
 24. Closes #38 commit e97c73c090171272609bff58247130f11cbfacae `(studentB)`
 25. Closes #39 commit 2e6431affeb8a384bcbeb0562462e02adebac484 `(studentA)`
 26. Closes #42 commit e046b442141e221ed45f50ad9e8b17a004c97742 `(studentC)`
