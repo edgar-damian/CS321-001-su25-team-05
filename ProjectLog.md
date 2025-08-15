@@ -2,7 +2,7 @@
 ## Team 3
 
 `Edgar Rios Negrete`
-`(studentC)`
+`(Diego Dominguez)`
 `(studentB)`
 
 
@@ -11,7 +11,7 @@
 2. Created BTree.java f69fa9a5f6831158ba9d044dd392020b95c6567a `(Edgar)`
 3. Added Node class,diskRead,and diskWrite 9f5d20d22740c399ecc0cf837a55b7ca9e9ccf7e `(Edgar)`
 4. Added constructor 9f5d20d22740c399ecc0cf837a55b7ca9e9ccf7e `(studentB)`
-5. Closes #12 commit 3240ac0db317f13288d06453ecd13e571a578fa5 `(studentA)`
+5. Resolved #7 commit 278e4a3da8ff343f640bbe0bfee67365cbf33cb2 `(Diego Dominguez)`
 6. Closes #14 commit 62048ee405ce893428f723a21a599ad9ba6bef93 `(studentB)`
 7. Closes #8 commit 3c94cdbf15eb4abccf951910163b574b77883bf8 `(studentC)`
 8. Create Project-log.md (this file!) commit 7ae23e9e2a9857a2f99e5091e137c8c440db9f8a `(studentA)`
@@ -20,8 +20,8 @@
 # Sprint 2 (August 4th, Monday 2025 - August 10th, Sunday 2025)
 11. Closes #15 commit 30d5c933be1459de38999cd5112c47b4daae9a87 `(studentB)`
 12. Added Search adf6fa8d965284a0e080a183c71923d4c64dcbca `(Edgar)`
-13. Closes # N/A commit af8aadf0c64c81cd5858f4b3f108b2de158528a4 `(studentB)`
-14. Closes #20 commit 43ca9ba336f5071b2b68a18aa85f20ecf8dfaa78 `(studentB)`
+13. Resolved #8 commit 9f653bc5ee0add3988ed9679769ebb89adcbfd33 `(Diego Dominguez)`
+14. Closes #9 commit 26fa11da422dd89d3e16c378108d78fd123526bd `(Diego Dominguez)`
 15. Closes #22 commit 9b40500c3cb0baa1e7c92e6edd9f2ee4f2bfe63a `(studentA)`
 16. Closes #22 part II commit 068e3eba0422eb1d042426c38c6f4d444f0fd105 `(studentA)`
 17. Closes #24 commit 12adbd5f688f06c6c102c1c3f3d174fb8f3a41c6 `(studentB)`
@@ -30,7 +30,7 @@
 20. Closes #32 commit bc66c581426a75cdb2ca13a66908c16802a82e4f `(studentC)`
 21. Closes #33 commit 20b023b5d87d80da7b3276fc299f09dcc5b61e65 `(studentA)`
 # Sprint 3 (August 11th, Monday 2025 - August 15th, Friday 2025)
-22. Closes #10 commit 3ed6efff8881208b7eef2788f5fe7675698aef9b `(studentB)`
+22. Closes #13 commit 4fb2c4cc9bf6ccb9f8bf4f55fdc1a73da8558a1d `(Diego Dominguez)`
 23. Closes #37 commit ae16187de370172386a2f77332e38a45d49b40e3 `(studentB)`
 24. Closes #38 commit e97c73c090171272609bff58247130f11cbfacae `(studentB)`
 25. Closes #39 commit 2e6431affeb8a384bcbeb0562462e02adebac484 `(studentA)`
