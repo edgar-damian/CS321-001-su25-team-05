@@ -85,10 +85,6 @@ public final class SSHSearchBTreeArguments {
                     if (paredDegree < 0){
                         throw new NumberFormatException();
                     }
-                    // these are not valid degrees, so use the default
-                    if (paredDegree < 1){
-                        degree = 128;
-                    }
                     //valid degree, just copy over
                     else {
                         degree = paredDegree;
@@ -149,11 +145,11 @@ public final class SSHSearchBTreeArguments {
         if (query == null) {
             throw new IllegalArgumentException("Missing query file.\n" + usage());
         }
-        if (degree < 1) {
-            throw new IllegalArgumentException("degree must be >= 1\n" + usage());
+        if (degree < 0) {
+            throw new IllegalArgumentException("degree must be positive\n" + usage());
         }
         if (topF == null) {
-            topF = 25;
+            topF = 0;
         }
 
         return new SSHSearchBTreeArguments(

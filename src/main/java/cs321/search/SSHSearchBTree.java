@@ -30,7 +30,9 @@ public final class SSHSearchBTree {
 		/* open BTree  */
 		BTree btree;
 		try {
-			btree = new BTree(a.getDegree(), a.getBtreeFile());
+			btree = (a.getDegree() == 0)
+					     ? new BTree(a.getBtreeFile())
+					     : new BTree(a.getDegree(), a.getBtreeFile());
 		} catch (Exception e) {
 			System.err.println("Failed to open BTree: " + e.getMessage());
 			return;
