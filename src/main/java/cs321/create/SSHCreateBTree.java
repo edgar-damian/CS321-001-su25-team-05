@@ -26,7 +26,8 @@ public class SSHCreateBTree {
             System.out.println("Arguements parsed successfully" + args.toString());
         }
         int userDegree = myArgs.getDegree();
-        String fileName = "SSH_log.txt.ssh.btree." + myArgs.getTreeType()+"."+myArgs.getDegree();
+        //String fileName = "SSH_log.txt.ssh.btree." + myArgs.getTreeType()+"."+myArgs.getDegree(); //make the file name
+        String fileName = "SSH_log.txt.ssh.btree." + myArgs.getTreeType() + ".0";
         BTree btree = new BTree(userDegree, fileName);
 
         // create scanner for the file
@@ -37,17 +38,24 @@ public class SSHCreateBTree {
         while (scanner.hasNextLine()) {
             line = scanner.nextLine();
             String log = SSHFileReader.extractSSHLogEntries(line, treeType); // call my SSHFileReader extracter method i made
-            TreeObject treeObject = new TreeObject(log); // setting the log to a treeObject
-            btree.insert(treeObject); // inserting into the btree
+
+            if (log != null){ //making sure the log is not null and doesnt write junk to the file
+                TreeObject treeObject = new TreeObject(log); // setting the log to a treeObject
+                btree.insert(treeObject); // inserting into the btree
+            }
+
+//            TreeObject treeObject = new TreeObject(log); // setting the log to a treeObject
+//            btree.insert(treeObject); // inserting into the btree
         }
         scanner.close();
 
         // Allow user to build a file and check the btree, we need to implement a dumpFile method in Btree at some point
         if (myArgs.getDebugLevel() == 1) {
-            String dumpFileName = "dump-"+myArgs.getTreeType()+"."+myArgs.getDegree()+ ".txt";
+            //String dumpFileName = "dump-"+myArgs.getTreeType()+"."+myArgs.getDegree()+ ".txt";
+            String dumpFileName = "dump-" + myArgs.getTreeType() + ".0.txt";
             PrintWriter file = new PrintWriter(dumpFileName);
-//            btree.dumpFile(file);
-//            file.close();
+            btree.dumpFile(file); //edgar
+            file.close();
             System.out.println("Debug dump file created here: " + dumpFileName);
             if (myArgs.getUseDatabase() == 1){
                 // strips all chars and nums
