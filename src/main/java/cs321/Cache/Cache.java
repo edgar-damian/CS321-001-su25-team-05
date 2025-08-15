@@ -1,26 +1,28 @@
 package cs321.Cache;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
-//package cs321.btree.BTree;
 import cs321.btree.BTree;
 
 public class Cache{
-    //public class LinkedHashMap<Key,Value>
     private LinkedHashMap<Long, BTree.Node> cache; //uses LinkedHashMap instead of a linked list
-
-    //private LinkedList<Node> cache;
-    private int cacheSize;
+    private int cacheSize; //max size the cache can be
     private int refCount;
     private int hitCount;
 
-    public Cache(Integer size){
+    public Cache(int size){
+        //check to see if it is between 100-10000
+        if (size <100 || size > 10000) {
+            throw new IllegalArgumentException("Cache size must be between 100-10000");
+        }
+
         this.cacheSize = size;
-
-        //Constructs an empty insertion-ordered LinkedHashMap instance with the specified initial capacity and a default load factor (0.75).
-        this.cache = new LinkedHashMap<>(size);
-
         this.refCount = 0;
         this.hitCount = 0;
+
+        //Constructs an empty insertion-ordered LinkedHashMap instance with the specified initial capacity and a default load factor (0.75).
+        //this.cache = new LinkedHashMap<>(size);
+        this.cache = new LinkedHashMap<Long, BTree.Node>(size, 0.75f, true);
+
+
     }
 
     public BTree.Node get(long key) {

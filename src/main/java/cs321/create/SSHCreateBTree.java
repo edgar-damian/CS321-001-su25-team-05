@@ -28,7 +28,9 @@ public class SSHCreateBTree {
         int userDegree = myArgs.getDegree();
         //String fileName = "SSH_log.txt.ssh.btree." + myArgs.getTreeType()+"."+myArgs.getDegree(); //make the file name
         String fileName = "SSH_log.txt.ssh.btree." + myArgs.getTreeType() + ".0";
-        BTree btree = new BTree(userDegree, fileName);
+
+        int cacheNum = myArgs.getCacheSize();
+        BTree btree = (cacheNum != 0) ? new BTree(userDegree, fileName, cacheNum) : new BTree(userDegree, fileName);
 
         // create scanner for the file
         Scanner scanner = new Scanner(new File(myArgs.getSSHFileName()));

@@ -1,5 +1,6 @@
 package cs321.btree;
 
+import cs321.Cache.Cache;
 import cs321.btree.TreeObject;
 
 import java.io.*;
@@ -23,6 +24,10 @@ public class BTree {
     private int numObjects = 0; //number of objects inside each node
     private long rootAddress = METADATA_SIZE;
     private Node root;
+
+    private boolean withCache = false; //false be default
+    private int cacheSize;
+    private Cache cache;
 
     public BTree(String fileNameString) {
 
@@ -85,6 +90,68 @@ public class BTree {
         this.nodeLength = calculateBytes();
         this.buffer = ByteBuffer.allocateDirect(calculateBytes());
         this.nextDiskAddress = METADATA_SIZE;
+
+
+        File fileName = new File(fileNameString);
+        boolean exists;
+        if (fileName.exists()) {
+            exists = true;
+        } else {
+            exists = false;
+        }
+
+        try {
+            //open file, create if !exists
+            if (!exists) {
+                fileName.createNewFile();
+            }
+            RandomAccessFile dataFile = new RandomAccessFile(fileName, "rw");
+            file = dataFile.getChannel();
+
+            /**
+             * This is for a brand new tree. Sets it up in the
+             * disk and get nextDiskAddress ready
+             */
+            if (!exists) {
+                Node x = new Node(true);
+                x.leaf = true;
+                x.n = 0;
+                root = x;
+                numNodes = 1;
+                diskWrite(x);
+                rootAddress = x.address;
+
+                writeMetaData();
+                //makes sure nextDiskAddress actually points to the next address
+                nextDiskAddress = Math.max(nextDiskAddress, file.size());
+            }
+            /**
+             * This is if a tree already exitst, basically
+             * load the tree by getting in the right address to continue.
+             */
+            else {
+                readMetaData();
+                root = diskRead(rootAddress);
+                nextDiskAddress = Math.max(file.size(), METADATA_SIZE);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public BTree(int degree,String fileNameString, int cacheSize) {
+        this.t = degree;
+        this.nodeLength = calculateBytes();
+        this.buffer = ByteBuffer.allocateDirect(calculateBytes());
+        this.nextDiskAddress = METADATA_SIZE;
+
+        if (cacheSize >= 100 && cacheSize <= 10000) {
+            this.cache = new Cache(cacheSize);
+            withCache = true;
+        } else {
+            System.out.println("IS THIS RIGHT?: " + cacheSize);
+            this.cache = null; //cache if invalid size
+        }
 
 
         File fileName = new File(fileNameString);
@@ -543,6 +610,13 @@ public class BTree {
             return null;
         }
 
+        if (withCache){
+            Node cachedNode = cache.get(diskAddress);
+            if (cachedNode != null){
+                return cachedNode; //found in cache, stop and return here
+            }
+        }
+
         file.position(diskAddress);
         buffer.clear();
 
@@ -593,6 +667,9 @@ public class BTree {
         }
 
         Node x = new Node(n, keys, children, leaf, diskAddress, true);
+        if (withCache){
+            cache.add(x.address, x); //put in the cache before returning
+        }
         return x;
     }
 
@@ -608,6 +685,10 @@ public class BTree {
             x.address = nextDiskAddress;
             nextDiskAddress += nodeLength;
             System.out.println("FLAG: Node shifted address in diskWrite");
+        }
+
+        if (withCache){
+            cache.add(x.address, x);
         }
 
         file.position(x.address); //file interception null
