@@ -1,8 +1,7 @@
 package cs321.search;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.PriorityQueue;
+
 import cs321.search.SSHSearchDatabaseArguments;
 /**
  * Driver class for BTree
@@ -16,7 +15,7 @@ public final class SSHSearchDatabase {
         /** getting arguements **/
         SSHSearchDatabaseArguments parsedArgs = new SSHSearchDatabaseArguments(args);
         String type = parsedArgs.getType();
-        String databasePath = parsedArgs.gataDatabasePath();
+        String databasePath = parsedArgs.getaDatabasePath();
         int topN = parsedArgs.getTopN();
 
         /** type and databasePath are required **/
@@ -32,14 +31,77 @@ public final class SSHSearchDatabase {
                 createTestDatabase(conn);
                 System.out.println("Database created: " + databasePath);
             } else {
-                // use the real data
+                String tableName=mapTypeToTable(type);
+                String sql="SELECT key, frequency FROM \""+tableName+"\"";
+                PriorityQueue<KeyFreq> pq= new PriorityQueue<>();
 
+                try(Statement stmt=conn.createStatement();
+                    ResultSet rs=stmt.executeQuery(sql)){
+                    while(rs.next()){
+                        String key=rs.getString("key");
+                        int frequency= rs.getInt("frequency");
+                        pq.add(new KeyFreq(key,frequency));
+                    }
+                } catch (Exception e) {
+                    System.err.println("Database Query Failed:"+e.getMessage());
+                    e.printStackTrace();
+                    return;
+                }
+                int count=0;
+                while(!pq.isEmpty() && count<topN)
+                {
+                    KeyFreq entry=pq.poll();
+                    System.out.println(entry.key+" "+entry.frequency);
+                    count++;
+                }
+                // use the real data
             }
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
             e.printStackTrace();
         }
-     }
+    }  
+    private static String mapTypeToTable(String type) {
+        switch (type) {
+            case "accepted-ip":
+                return "acceptedIP";
+            case "accepted-time":
+                return "acceptedTimeStamp";
+            case "failed-ip":
+                return "failedIP";
+            case "failed-time":
+                return "failedTimeStamp";
+            case "invalid-ip":
+                return "invalidIP";
+            case "invalid-time":
+                return "invalidTimeStamp";
+            case "reverseaddress-ip":
+                return "reverseAddressIP";
+            case "reverseaddress-time":
+                return "reverseAddressTimeStamp";
+            case "user-ip":
+                return "userIp";
+            default:
+                throw new IllegalArgumentException("Unknown type: " + type);
+        }
+    }
+
+    private static class KeyFreq implements Comparable<KeyFreq>{
+        String key;
+        int frequency;
+        KeyFreq(String key,int frequency){
+            this.key=key;
+            this.frequency=frequency;
+        }
+        @Override
+        public int compareTo(KeyFreq other){
+            int freqCmp=Integer.compare(other.frequency,this.frequency);
+            if(freqCmp!=0){
+                return freqCmp;
+            }
+            return this.key.compareTo(other.key);
+        }
+        }
 
     private static void createTestDatabase(Connection conn) throws Exception {
         String[] testData = {
@@ -123,7 +185,6 @@ public final class SSHSearchDatabase {
                     insertFailedTimeStamp.setString(1, firstString);
                     insertFailedTimeStamp.setInt(2, freq);
                     insertFailedTimeStamp.executeUpdate();
-
                 } else if (firstString.startsWith("Invalid-")) {
                     insertInvalidIP.setString(1, firstString);
                     insertInvalidIP.setInt(2, freq);
@@ -145,19 +206,13 @@ public final class SSHSearchDatabase {
                 }
             }
         }
+    }
 
-
-
-
-        }
-
-
-
-        private static void printUsageAndExit () {
-            System.err.println("Usage: java SSHSearchDatabase " +
-                    "--cache=<0|1> --degree=<n> --btree-file=<file> --query-file=<file> " +
-                    "[--top-frequency=<N>] [--cache-size=<n>] [--debug=<0|1>]");
-            System.exit(1);
-        }
+    private static void printUsageAndExit () {
+        System.err.println("Usage: java SSHSearchDatabase " +
+                "--cache=<0|1> --degree=<n> --btree-file=<file> --query-file=<file> " +
+                "[--top-frequency=<N>] [--cache-size=<n>] [--debug=<0|1>]");
+        System.exit(1);
+    }
 
 }

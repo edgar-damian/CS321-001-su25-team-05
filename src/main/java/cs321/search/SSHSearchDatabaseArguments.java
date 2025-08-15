@@ -36,7 +36,7 @@ public class SSHSearchDatabaseArguments {
     }
 
     /** the path to the file */
-    public String gataDatabasePath() {
+    public String getaDatabasePath() {
         return dbPath;
     }
 
