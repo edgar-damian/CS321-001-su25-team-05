@@ -1,132 +1,84 @@
 package cs321.Cache;
+
 import java.util.LinkedHashMap;
+import java.util.Map;
+
 import cs321.btree.BTree;
 
-public class Cache{
-    private LinkedHashMap<Long, BTree.Node> cache; //uses LinkedHashMap instead of a linked list
-    private int cacheSize; //max size the cache can be
+public class Cache {
+    // single map supports both key types (String and Long)
+    private final LinkedHashMap<Object, Object> map;
+    private final int capacity;
     private int refCount;
     private int hitCount;
 
-    public Cache(int size){
-        //check to see if it is between 100-10000
-        if (size <100 || size > 10000) {
-            throw new IllegalArgumentException("Cache size must be between 100-10000");
-        }
-
-        this.cacheSize = size;
+    public Cache(Integer size) {
+        int cap = (size == null || size <= 0) ? 1 : size;
+        this.capacity = cap;
+        this.map = new LinkedHashMap<Object, Object>(16, 0.75f, true) {
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<Object, Object> eldest) {
+                return size() > Cache.this.capacity; // LRU eviction
+            }
+        };
         this.refCount = 0;
         this.hitCount = 0;
-
-        //Constructs an empty insertion-ordered LinkedHashMap instance with the specified initial capacity and a default load factor (0.75).
-        //this.cache = new LinkedHashMap<>(size);
-        this.cache = new LinkedHashMap<Long, BTree.Node>(size, 0.75f, true);
-
-
     }
 
-    public BTree.Node get(long key) {
-        /*
-        Iterator<T> iterator = cache.iterator();
-        while(iterator.hasNext()){
-            T value = iterator.next();
-            // check to see if key is equal to values ket
-            if(value.getKey().equals(key)){
-                // update hit count and moves it to the front of the cache
-                hitCount++;
-                iterator.remove();
-                cache.addFirst(value);
-                return value;
-            }
-        }
-        return null;
+    // -------- String-key API (used by SSHSearchBTree) --------
+    public boolean contains(String key) {
+        return map.containsKey(key);
+    }
 
-         */
-        /*
-        Get a key, if a keys is null that mean it was never there.
-        If
-         */
+    public String[] get(String key) {
         refCount++;
-        BTree.Node node = cache.get(key);
-        if (node != null) {
+        Object v = map.get(key);
+        if (v != null)
             hitCount++;
-            cache.put(key, node); //MRU I think...
-            return node;
-        }
-        return null;
+        return (String[]) v;
     }
 
+    public void put(String key, String[] value) {
+        map.put(key, value);
+    }
+
+    // -------- long-key API (for BTree node caching) --------
+    public boolean contains(long address) {
+        return map.containsKey(address);
+    }
+
+    public BTree.Node get(long address) {
+        refCount++;
+        Object v = map.get(address);
+        if (v != null)
+            hitCount++;
+        return (BTree.Node) v;
+    }
+
+    // kept for compatibility with older code
     public BTree.Node add(long address, BTree.Node value) {
-        /*
-        remove(value.getKey());
-        T returnValue = null;
-        // removes last if cache is full
-        if(cache.size() >= cacheSize){
-            returnValue = cache.removeLast();
-        }
-        cache.addFirst(value);
-        return returnValue;
-        */
-        return cache.put(address, value); //does this still need to return a node?
+        Object prev = map.put(address, value);
+        return (BTree.Node) prev;
     }
 
-    public BTree.Node remove(long key) {
-        /*
-        T returnValue = null;
-        Iterator<T> iterator = cache.iterator();
-        while(iterator.hasNext()){
-            T value = iterator.next();
-            // if values key is equal to param key remove the the object
-            if(value.getKey().equals(key)){
-                returnValue = value;
-                iterator.remove();
-            }
-        }
-        return returnValue;
-        */
-        BTree.Node temp = cache.remove(key);
-        if (temp == null) {
-            //the node was never there, nothing to be removed
-            return null;
-        }
-        return temp;
-    }
-
-    public boolean contains(long address){
-        /*
-        BTreeNode node = new BTreeNode(address);
-        Iterator<T> iter = list.listIterator();
-        T temp;
-        while(iter.hasNext()){
-            temp = iter.next();
-            if(((Comparable<T>) node).compareTo(temp) == 0){
-                return true;
-            }
-        }
-        return false;
-         */
-        // no use to keep this a function?
-        // Returns true if this map maps one or more keys to the specified value.
-        return cache.containsKey(address);
-
+    public BTree.Node remove(long address) {
+        Object prev = map.remove(address);
+        return (BTree.Node) prev;
     }
 
     public void clear() {
-        // Removes all of the mappings from this map.
-        cache.clear();
+        map.clear();
     }
 
+    @Override
     public String toString() {
-        double hitNumber = 0.0;
-        if (refCount > 0) {
-            hitNumber = ((double) hitCount) / (double) refCount * 100;
-        }
+        double hitPercent = refCount > 0 ? (hitCount * 100.0) / refCount : 0.0;
         return "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
-                + "cs321.Cache.Cache with " + cacheSize + " entries has been created\n"
+                + "cs321.Cache.Cache with " + capacity + " entries has been created\n"
                 + "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
                 + "Total number of references:        " + refCount + "\n"
                 + "Total number of cache hits:        " + hitCount + "\n"
                 + "cs321.Cache.Cache hit percent:                 "
-                + String.format("%.2f", hitNumber) + "%\n";
+                + String.format("%.2f", hitPercent) + "%\n";
     }
 }
