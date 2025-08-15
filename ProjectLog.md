@@ -1,25 +1,25 @@
 ### Project Log
 ## Team 3
 
-`(studentA)`
+`Edgar Rios Negrete`
 `(studentC)`
 `(studentB)`
 
 
-# Sprint 1 (November 3rd, Wednesday 2023 - November 19th, Friday 2023)
-1. Closes #9 commit adbc94690fa5ecf2912a055f634a6e24b4da8fbe `(studentA)`
-2. Closes #7 commit 151669a9d40ec1ebd34dc3cb3649d564113cbcbf `(studentA)`
-3. Closes #3 commit 0b76cc6ba2487e2190a4072359c3d88bd104b226 `(studentB)`
-4. Closes #10 commit 515746a2378c782496af8b1cee9bc6036b176603 `(studentB)`
+# Sprint 1 (July 28th, Monday 2025 - August 3rd, Sunday 2025)
+1. Pushed starter code b53905984b853dd0351e213715c7cb1073949999 `(Edgar)`
+2. Created BTree.java f69fa9a5f6831158ba9d044dd392020b95c6567a `(Edgar)`
+3. Added Node class,diskRead,and diskWrite 9f5d20d22740c399ecc0cf837a55b7ca9e9ccf7e `(Edgar)`
+4. Added constructor 9f5d20d22740c399ecc0cf837a55b7ca9e9ccf7e `(studentB)`
 5. Closes #12 commit 3240ac0db317f13288d06453ecd13e571a578fa5 `(studentA)`
 6. Closes #14 commit 62048ee405ce893428f723a21a599ad9ba6bef93 `(studentB)`
 7. Closes #8 commit 3c94cdbf15eb4abccf951910163b574b77883bf8 `(studentC)`
 8. Create Project-log.md (this file!) commit 7ae23e9e2a9857a2f99e5091e137c8c440db9f8a `(studentA)`
 9. Closes #2 commit 983a9a8f23b04adf89fa3d33367e6aeafdc8e321 `(studentC)`
 10. Closes #7 commit cb11f4a0a31b7781fee522b1b2e4677601cf75f7 `(studentA)`
-# Sprint 2 (November 21st, Sunday 2023 - November 27th, Saturday 2023)
-11. Closes #3 commit b27bd21c3a7e1bf95297ffc12dd8f257f37616a9 `(studentB)`
-12. Closes #10 commit b2ad17d9633bd6f9613a3ac62545ae97e4909797 `(studentB)`
+# Sprint 2 (August 4th, Monday 2025 - August 10th, Sunday 2025)
+11. Closes #15 commit 30d5c933be1459de38999cd5112c47b4daae9a87 `(studentB)`
+12. Added Search adf6fa8d965284a0e080a183c71923d4c64dcbca `(Edgar)`
 13. Closes # N/A commit af8aadf0c64c81cd5858f4b3f108b2de158528a4 `(studentB)`
 14. Closes #20 commit 43ca9ba336f5071b2b68a18aa85f20ecf8dfaa78 `(studentB)`
 15. Closes #22 commit 9b40500c3cb0baa1e7c92e6edd9f2ee4f2bfe63a `(studentA)`
@@ -29,7 +29,7 @@
 19. Closes #31 commit dec5d9cc4aa7f7b2cd60dbb45a426aed37b76a3c `(studentC)`
 20. Closes #32 commit bc66c581426a75cdb2ca13a66908c16802a82e4f `(studentC)`
 21. Closes #33 commit 20b023b5d87d80da7b3276fc299f09dcc5b61e65 `(studentA)`
-# Sprint 3 (November 28th, Sunday 2023 - December 4th, Saturday 2023)
+# Sprint 3 (August 11th, Monday 2025 - August 15th, Friday 2025)
 22. Closes #10 commit 3ed6efff8881208b7eef2788f5fe7675698aef9b `(studentB)`
 23. Closes #37 commit ae16187de370172386a2f77332e38a45d49b40e3 `(studentB)`
 24. Closes #38 commit e97c73c090171272609bff58247130f11cbfacae `(studentB)`
@@ -39,6 +39,12 @@
 28. Closes #40 commit 727020036df80ce8b6619a472b8950954006699d `(studentA)`
 29. Closes #41 commit d97522a4ab53b4b0a125754871a43e7c08200a9d `(studentB)`
 30. Closes #44 commit 2e8d6799a7217be470c12629b93802e6fc666c47 `(studentB)`
+
+
+
+
+
+
 # Sprint 4 (December 5th, Sunday 2023 - December 12th, Sunday 2023)
 31. Closes #34 commit 30d5c933be1459de38999cd5112c47b4daae9a87 `(studentB)`
 32. Update gitignore commit 01716e375f26e9d2a3ba0f4ad8426937f324436e `(studentB)`
@@ -56,6 +62,7 @@
 44. Implements #40 final debug (in work in progress) commit 585b3ddd1b0d637904b5a06f0e627fb712f25fbb `(studentA)`
 45. Closes #36 commit 0b84a81afa410a41896a9fb840f0e383a6932cd4 `(studentC)`
 46. Closes #48 commit 1529e2c305bea90c03471722c5f14c65c07cdfee `(studentC)`
+
 
 
 
