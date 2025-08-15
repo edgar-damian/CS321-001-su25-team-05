@@ -90,7 +90,7 @@ public final class SSHSearchDatabase {
             stmt.executeUpdate("CREATE TABLE invalidTimeStamp (key TEXT, frequency INTEGER)");
             stmt.executeUpdate("CREATE TABLE reverseAddressIP (key TEXT, frequency INTEGER)");
             stmt.executeUpdate("CREATE TABLE reverseAddressTimeStamp (key TEXT, frequency INTEGER)");
-            stmt.executeUpdate("CREATE TABLE userIp (key TEXT, frequency INTEGER)");
+            stmt.executeUpdate("CREATE TABLE userIp (key TEXT UNIQUE, frequency INTEGER)");
 
         }
         /** creating statements **/
