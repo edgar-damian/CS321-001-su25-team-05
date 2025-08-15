@@ -31,7 +31,7 @@ public final class SSHSearchDatabase {
                 createTestDatabase(conn);
                 System.out.println("Database created: " + databasePath);
             } else {
-                String tableName=type;
+                String tableName=mapTypeToTable(type);
                 String sql="SELECT key, frequency FROM \""+tableName+"\"";
                 PriorityQueue<KeyFreq> pq= new PriorityQueue<>();
 
@@ -60,6 +60,31 @@ public final class SSHSearchDatabase {
             e.printStackTrace();
         }
     }
+    private static String mapTypeToTable(String type) {
+        switch (type) {
+            case "accepted-ip":
+                return "acceptedIP";
+            case "accepted-time":
+                return "acceptedTimeStamp";
+            case "failed-ip":
+                return "failedIP";
+            case "failed-time":
+                return "failedTimeStamp";
+            case "invalid-ip":
+                return "invalidIP";
+            case "invalid-time":
+                return "invalidTimeStamp";
+            case "reverseaddress-ip":
+                return "reverseAddressIP";
+            case "reverseaddress-time":
+                return "reverseAddressTimeStamp";
+            case "user-ip":
+                return "userIp";
+            default:
+                throw new IllegalArgumentException("Unknown type: " + type);
+        }
+    }
+
     private static class KeyFreq implements Comparable<KeyFreq>{
         String key;
         int frequency;
@@ -69,14 +94,13 @@ public final class SSHSearchDatabase {
         }
         @Override
         public int compareTo(KeyFreq other){
-            int cmp=this.key.compareTo(other.key);
-            if(cmp!=0){
-                return cmp;
+            int freqCmp=Integer.compare(other.frequency,this.frequency);
+            if(freqCmp!=0){
+                return freqCmp;
             }
-            return Integer.compare(this.frequency, other.frequency);
+            return this.key.compareTo(other.key);
         }
-    }
-
+        }
 
     private static void createTestDatabase(Connection conn) throws Exception {
         String[] testData = {
