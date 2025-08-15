@@ -43,7 +43,8 @@ public final class SSHSearchDatabase {
                         pq.add(new KeyFreq(key,frequency));
                     }
                 } catch (Exception e) {
-                    System.err.println("Database Query Failed");
+                    System.err.println("Database Query Failed:"+e.getMessage());
+                    e.printStackTrace();
                     return;
                 }
                 int count=0;
@@ -59,7 +60,7 @@ public final class SSHSearchDatabase {
             System.err.println("Error: " + e.getMessage());
             e.printStackTrace();
         }
-    }
+    }  
     private static String mapTypeToTable(String type) {
         switch (type) {
             case "accepted-ip":
