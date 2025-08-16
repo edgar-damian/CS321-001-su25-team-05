@@ -23,7 +23,7 @@ the specified parameters for B-Tree creation:
 
 ### What is the most common first three IP digits in the top 10 entries?
 
-(answer)
+(119)
 
 Database Output:
 ```bash
@@ -35,7 +35,7 @@ Database Output:
 
 ### What is the range (highest-lowest) of the top 25 entries?
 
-(answer)
+(20-1)
 
 Database Output:
 ```bash
@@ -47,7 +47,7 @@ Database Output:
 
 ### What is the first three IP digits of the top 2 entries of 50 total entries?
 
-(answer)
+(103 and 1.34)
 
 Database Output:
 ```bash
@@ -59,7 +59,7 @@ Database Output:
 
 ### Is the top entry reverse or Address type in the top 25 entries?
 
-(answer)
+(Address)
 
 Database Output:
 ```bash
@@ -71,7 +71,7 @@ Database Output:
 
 ### Which hour was the most prevalent for a reverse break in attempt in the top 25 entries?
 
-(answer)
+(Hour 6)
 
 Database Output:
 ```bash
