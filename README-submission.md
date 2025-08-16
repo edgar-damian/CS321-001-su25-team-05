@@ -25,6 +25,19 @@ Brief reflection on your experience with running your code on AWS.
 Provide a reflection by each of the team member (in a separate subsection)
 
 ## Reflection (Team member name: Edgar Rios Negrete)
+I gained a lot of experience from this project, especially in terms of working with other on git. This project was fairly big, 
+and we had numerous different things all come in and tie together towards the end. Github was great for keeping track of what
+each person did. The scrum board was also a very helpful feature, I discovered the benefits of using this on the later half of 
+the project, so I did not use it as much as I wish I did. This project really tested my character with the amount of bugs that 
+we had to fix. Overall, me fixing so many bugs gave me a confidence boost. One bug in particular took me hours to find and figure 
+out. When our SSHFileReader grabs a user name and an IP, it will return a big string with both of these values operated by a “-‘”. 
+It all goes as normal, until it is written in the disk. Since there are 64 bytes, that means there can be a max of 32 chars in a
+single string per TreeObject. When it is getting written to the disk, it gets truncated at 32 chars. This then in a way changes the key. 
+When a duplicate comes along, it does not find a match, as the original is now truncated and they no longer equal. Then it gets 
+inserted as a new one and gets truncated as it gets written into the disk. This then causes a duplicate to appear in the final output. 
+Finding this was time consuming to say the least, but I feel accomplished now that I was able to clear that up, and that me and my group 
+were able to get all of the different parts of the code to work together an work as intended. Looking back at it, I think it is impressive 
+how much we did on this project and how many different things we brought in form the semester.
 
 ## Reflection (Team member name: Diego Dominguez)
 
