@@ -51,7 +51,7 @@ public final class SSHSearchDatabase {
         StringBuilder unionQuery = new StringBuilder();
 
         for (int i = 0; i < types.length; i++) {
-            String table = types[i].replace("-", "");
+            String table = mapTypeToTable(types[i]);
             if (i > 0) unionQuery.append(" UNION ALL ");
             unionQuery.append("SELECT '").append(table)
                     .append("' AS source, ").append(table).append(".key, ").append(table).append(".frequency ")
