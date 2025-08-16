@@ -3,7 +3,7 @@
 
 `Edgar Rios Negrete`
 `(Diego Dominguez)`
-`(studentB)`
+`Oscar Acuna Cortez`
 
 
 # Sprint 1 (July 28th, Monday 2025 - August 3rd, Sunday 2025)
@@ -18,14 +18,14 @@
 9. Closes #2 commit 983a9a8f23b04adf89fa3d33367e6aeafdc8e321 `(studentC)`
 10. Closes #7 commit cb11f4a0a31b7781fee522b1b2e4677601cf75f7 `(studentA)`
 # Sprint 2 (August 4th, Monday 2025 - August 10th, Sunday 2025)
-11. Closes #15 commit 30d5c933be1459de38999cd5112c47b4daae9a87 `(studentB)`
+11. Updated Insert 3a5798c29bda81dfbcbe5177b37cf9b2ed69405f `(Oscar Acuna)`
 12. Added Search adf6fa8d965284a0e080a183c71923d4c64dcbca `(Edgar)`
 13. Resolved #8 commit 9f653bc5ee0add3988ed9679769ebb89adcbfd33 `(Diego Dominguez)`
 14. Closes #9 commit 26fa11da422dd89d3e16c378108d78fd123526bd `(Diego Dominguez)`
 15. Fixed some bugs c4d258390cd377b1884781ee1575099dbdf49a03 `(Edgar Rios)`
 16. Closes #5 commit 58fabec2c950bcef8c35786c35d69403dd209b9e `(Edgar Rios)`
 17. node class modified commit 1e13e4b3797dc5e80e97c1313b751f7a02298151 `(Edgar Rios)`
-18. Closes #29 commit 1fd905627d57841ebd56bc2b091058cad0f2e7fa `(studentC)`
+18. updated BTree methods f0641b4176774f04a1a4e93785b9010e9c5c9f50 `(Oscar Acuna)`
 19. Cleared all errors commit 024013381e4be1144b05bd576762ff8092a44fc2 `(Edgar Rios )`
 20. BTreeTest.java now passes 0a7d81b0d1363608479719f74d6c70132c068f9b `(Edgar Rios)`
 21. Closes #33 commit 20b023b5d87d80da7b3276fc299f09dcc5b61e65 `(studentA)`
@@ -36,8 +36,8 @@
 25. Started #10 commit 59d6e3a758039d58f3c07f3db0a54dbf93b0d9d5 `(Edgar Rios)`
 26. Closes #12 commit 9790ac4da62c83bff3e6676ee814870e02abc1ff `(Edgar Rios)`
 27. Closes #10 commit c28045339ef735a2ff276f4a793b7885b85f40ec `(Edgar Rios)`
-28. Closes #40 commit 727020036df80ce8b6619a472b8950954006699d `(studentA)`
-29. Closes #41 commit d97522a4ab53b4b0a125754871a43e7c08200a9d `(studentB)`
+28. Update SSHSeachDatabase fca33db41198b0ea51f2d3b0342daa8a01d4ee88 `(Oscar Acuna)`
+29. Merge branch 'DBTest' df1b8d74e454e2256ada60ecdef90913f974723a `(Oscar Acuna)`
 30. Closes #44 commit 2e8d6799a7217be470c12629b93802e6fc666c47 `(studentB)`
 
 

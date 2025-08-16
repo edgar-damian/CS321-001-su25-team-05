@@ -19,6 +19,12 @@
 
 # AWS Notes
 Brief reflection on your experience with running your code on AWS.
+It was interesting to be able to run code on the clout since its not something that I have had to yet in any
+classes. I still found it pretty interesting especially considering that self hosting is something that I would
+like to venture into and have slowly been getting my computer ready to get into that kinda stuff. Setting up
+the code to run on the AWS was fairly simple and the instructions were pretty simple to follow and it reminded 
+me a lot of using onyx for the first time since it looks like its primarily just terminal stuff.
+
 
 # Reflection
 
@@ -47,7 +53,16 @@ so it took a while to figure out why it kept failing. I have had quite a bit exp
 came a bit easier to me. Overall I think this project was very valuable in terms of putting our learning from our lectures
 into practice and as well learning how to work with a team. 
 
-## Reflection (Team member name: )
+## Reflection (Team member name: Oscar Acuna Cortez)
+This project was a long one and a very challenging one at that. This is one of my first real projects where I've
+used git alongside a team and quite frankly, it made me very confident in using git and github. I was constantly 
+making use of the branches and learn how to solve many of the problems that i thought i might face. One of the 
+issues that I faced was with the SSHSearchDatabase and just trying to understand how to use sql alongside Java
+since that is a newer concept for me. It was also interesting to see how previous checkpoints tied into this last 
+stretch. An example that I can point to is how I had created a class that was dedicated to holding the key and the
+frequency and then using that to make a priority queue to help organize where the values belonged. I did need a lot of 
+help since I still struggle with java and as a result, everyone else had to usually come in and help fix any errors that
+I may have caused or was unable to fix on my own.
 
 # Additional Notes
 TBD
