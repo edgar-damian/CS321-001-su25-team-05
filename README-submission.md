@@ -15,7 +15,7 @@
 #### How many of the btree query files results matched (using the check-btree-search.sh script)?
 18/18
 #### How many of the database query files results matched (using the check-db-search.sh script)?
-
+9/9
 
 # AWS Notes
 Brief reflection on your experience with running your code on AWS.
@@ -40,6 +40,8 @@ were able to get all of the different parts of the code to work together an work
 how much we did on this project and how many different things we brought in form the semester.
 
 ## Reflection (Team member name: Diego Dominguez)
+This project was by far the most challenging this semester, setting up the SSH files was quite hard to begin with
+just because I fully didn't understand how to parse everything and use those to create our btress and write it to our needed files.
 
 ## Reflection (Team member name: )
 
