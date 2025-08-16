@@ -58,10 +58,6 @@ public class SSHCreateBTree {
             btree.dumpFile(file);
             file.close();
             System.out.println("Debug dump file created here: " + dumpFileName);
-            if (myArgs.getUseDatabase() == 1){
-                // strips all chars and nums
-                String tableName = myArgs.getTreeType().replaceAll("[^a-zA-Z0-9]", "");
-            }
         }
 
         if (myArgs.getUseDatabase() == 1){
